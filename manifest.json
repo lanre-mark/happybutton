@@ -10,7 +10,7 @@
   },
 
   "background": {
-    "scripts": ["main.js"],
+    "scripts": ["jsFiles/background.js"],
     "persistent": false
   },
 
