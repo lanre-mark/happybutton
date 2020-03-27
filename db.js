@@ -26,6 +26,7 @@ function DB() {
     this.storage = new Array(this.SIZE);
     // these other properties of the key will help maintain a better randomized response
     this.types = {};
+    this.types[0] = "video";
     this.sections = {};
     this.slugs = {};
 }
@@ -37,8 +38,8 @@ DB.prototype.keyDetails = function(key) {
     if (key.section && !this.sections[key.section]) {
         this.sections[Object.keys(this.sections).length] = key.section;
     }
-    if (key.slug && !this.slugs[key.slug]) {
-        this.slugs[Object.keys(this.slugs).length] = key.slug;
+    if (key && !this.slugs[JSON.stringify(key)]) {
+        this.slugs[Object.keys(this.slugs).length] = JSON.stringify(key);
     }
 };
 
@@ -222,6 +223,36 @@ DB.prototype.reset = async function() {
         };
     }
 };
+
+
+const shuffle = function(collection) {
+    if (collection) {
+        for (let ii = collection.length - 1; ii > 0; ii--) {
+            const jj = Math.floor(Math.random() * ii)[collection[ii], collection[jj]] = [collection[jj], collection[ii]];
+        }
+    }
+    return collection;
+}
+
+const randomizeType = (rangeSize) => {
+    return Number((Math.random() * (Math.floor(rangeSize) - 1)).toFixed(0));
+}
+
+DB.prototype.generate = function() {
+    const resourceKey = this.slugs[randomizeType(shuffle(Object.keys(this.slugs)).length)]
+    const keyResource = JSON.parse(resourceKey);
+    if (keyResource.type === "video") {
+        // handle the YOUTUBE API SEARCH
+    } else {
+        return {
+            state: true,
+            message: {
+                type: keyResource.type,
+                data: this.get(resourceKey),
+            }
+        }
+    }
+}
 
 /**
  * Export a closed version of DB as a static object
