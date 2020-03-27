@@ -1,0 +1,31 @@
+{
+  "name": "happybutton",
+  "version": "1.0.0",
+  "description": "Feeling blue? Try hitting Ctrl+Shift+Y",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lanre-mark/happybutton.git"
+  },
+  "keywords": [
+    "happy",
+    "excited",
+    "relaxed",
+    "joy",
+    "laugh",
+    "rejoice"
+  ],
+  "author": "Lanre Mark, Matt Severyn",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lanre-mark/happybutton/issues"
+  },
+  "homepage": "https://github.com/lanre-mark/happybutton#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
