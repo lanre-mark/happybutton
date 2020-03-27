@@ -1,18 +1,16 @@
 /**
  * Implementation of resources database for the happybutton google extension
- * The usage of hastable will allow to create a key for the resource to be added based on 
+ * The usage of hastable will allow to create a key for the resource to be added based on
  * a couple of sub keys
- * For instance, rather than have a conventional database that will save the resources based 
- * on a couple of keys such as 
+ * For instance, rather than have a conventional database that will save the resources based
+ * on a couple of keys such as
  *                              type of resource e.g. music, animals, website, etc
  *                              section of type of resource above such as wildlife, pets, laughter, etc
- *                              site url e.g. 
+ *                              site url e.g.
  *            These keys are to be used to generate a key for the hash table as they are passed as a concatenated string
  *            into the hash function to generate the hash location
- *                              
+ *
  */
-
-
 
 /**
  * Database HashTable costructor
@@ -26,20 +24,18 @@ function DB() {
     this.storage = new Array(this.SIZE);
 }
 
-
 DB.prototype.set = function(key, value, setState = false) {
     if (this.overUsed()) {
-        this.resize()
+        this.resize();
     }
     key = JSON.stringify(key);
     const hashLocation = hashCode(key, this.SIZE);
     if (!this.storage[hashLocation]) {
-        this.storage[hashLocation] = {}
+        this.storage[hashLocation] = {};
     }
     this.storage[hashLocation][key] = value;
     if (!setState) return ++this.length;
 };
-
 
 /**
  *   If adding the new item will push the number of stored items to over 75 % of
@@ -51,10 +47,12 @@ DB.prototype.resize = function(state = 0) {
     // return a list of all key/value pairs in the hashTabe
     const hashListing = this.hashDirectory();
     // increase or decrease the size
-    (state == 0) ? this.SIZE *= 2: this.SIZE /= 2;
+    state == 0 ? (this.SIZE *= 2) : (this.SIZE /= 2);
     this.storage = new Array(this.SIZE);
-    Object.keys(hashListing).forEach(item => this.set(item, hashListing[item], true));
-}
+    Object.keys(hashListing).forEach(item =>
+        this.set(item, hashListing[item], true)
+    );
+};
 
 /**
  * Returns number of locations/buckets used in the HashTables
@@ -62,9 +60,11 @@ DB.prototype.resize = function(state = 0) {
  **/
 DB.prototype.hashUtilized = function() {
     return this.storage.reduce(function(locationsUsed, eachHashLocation) {
-        return eachHashLocation && Object.keys(eachHashLocation).length > 0 ? ++locationsUsed : locationsUsed;
+        return eachHashLocation && Object.keys(eachHashLocation).length > 0 ?
+            ++locationsUsed :
+            locationsUsed;
     }, 0);
-}
+};
 
 /**
  * Returns a boolean true/false is hash is over utilized
@@ -72,8 +72,12 @@ DB.prototype.hashUtilized = function() {
  **/
 DB.prototype.overUsed = function() {
     const locationsUsed = this.hashUtilized();
-    return locationsUsed > 0 ? ((locationsUsed / this.SIZE) * 100) >= 75.0 ? true : false : false
-}
+    return locationsUsed > 0 ?
+        (locationsUsed / this.SIZE) * 100 >= 75.0 ?
+        true :
+        false :
+        false;
+};
 
 /**
  * Returns a boolean true/false is hash is under utilized
@@ -82,8 +86,12 @@ DB.prototype.overUsed = function() {
  **/
 DB.prototype.underUsed = function() {
     const locationsUsed = this.hashUtilized();
-    return locationsUsed > 0 ? ((locationsUsed / this.SIZE) * 100) <= 25.0 ? true : false : false
-}
+    return locationsUsed > 0 ?
+        (locationsUsed / this.SIZE) * 100 <= 25.0 ?
+        true :
+        false :
+        false;
+};
 
 /**
  * list - List all key/value pairs in the hashTable
@@ -91,12 +99,16 @@ DB.prototype.underUsed = function() {
  **/
 DB.prototype.hashDirectory = function() {
     return this.storage.reduce(function listItems(hashItems, hasContent) {
-        return Object.keys(hasContent).reduce(function itemsInRow(hashContentInRow, eachRowKey) {
-            hashContentInRow[eachRowKey] = hasContent[eachRowKey]
-            return hashContentInRow;
-        }, hashItems)
-    }, {})
-}
+        return Object.keys(hasContent).reduce(function itemsInRow(
+                hashContentInRow,
+                eachRowKey
+            ) {
+                hashContentInRow[eachRowKey] = hasContent[eachRowKey];
+                return hashContentInRow;
+            },
+            hashItems);
+    }, {});
+};
 
 /**
  * get - Retrieves a value stored in the hash table with a specified key
@@ -111,9 +123,11 @@ DB.prototype.hashDirectory = function() {
 DB.prototype.get = function(key) {
     key = JSON.stringify(key);
     const hashLocation = hashCode(key, this.SIZE);
-    return this.storage[hashLocation] && this.storage[hashLocation].hasOwnProperty(key) ? this.storage[hashLocation][key] : undefined;
+    return this.storage[hashLocation] &&
+        this.storage[hashLocation].hasOwnProperty(key) ?
+        this.storage[hashLocation][key] :
+        undefined;
 };
-
 
 /**
  *  If the hash table 's SIZE is greater than 16 and the result of removing the
@@ -127,9 +141,12 @@ DB.prototype.remove = function(key) {
     }
     key = JSON.stringify(key);
     const hashLocation = hashCode(key, this.SIZE);
-    if (this.storage[hashLocation] && this.storage[hashLocation].hasOwnProperty(key)) {
+    if (
+        this.storage[hashLocation] &&
+        this.storage[hashLocation].hasOwnProperty(key)
+    ) {
         const delValue = this.storage[hashLocation][key];
-        delete this.storage[hashLocation][key]
+        delete this.storage[hashLocation][key];
         this.length--;
         return delValue;
     }
@@ -137,19 +154,21 @@ DB.prototype.remove = function(key) {
 };
 
 function hashCode(string, size) {
-    'use strict';
+    "use strict";
     let hash = 0;
     if (string.length === 0) return hash;
     for (let i = 0; i < string.length; i++) {
         const letter = string.charCodeAt(i);
-        hash = ((hash << 5) - hash) + letter;
+        hash = (hash << 5) - hash + letter;
         hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash) % size;
 }
 
 /**
- * Export a closed version of DB as a static object 
+ * Export a closed version of DB as a static object
  * for use in the rest of the entire application
  */
-module.exports = new DB();
+module.exports = {
+    database: new DB()
+};
