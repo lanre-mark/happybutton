@@ -12,6 +12,8 @@
  *
  */
 
+const fs = require("fs");
+
 /**
  * Database HashTable costructor
  *
@@ -22,12 +24,29 @@ function DB() {
     this.SIZE = 1024;
     this.length = 0;
     this.storage = new Array(this.SIZE);
+    // these other properties of the key will help maintain a better randomized response
+    this.types = {};
+    this.sections = {};
+    this.slugs = {};
 }
+
+DB.prototype.keyDetails = function(key) {
+    if (key.type && !this.types[key.type]) {
+        this.types[Object.keys(this.types).length] = key.type;
+    }
+    if (key.section && !this.sections[key.section]) {
+        this.sections[Object.keys(this.sections).length] = key.section;
+    }
+    if (key.slug && !this.slugs[key.slug]) {
+        this.slugs[Object.keys(this.slugs).length] = key.slug;
+    }
+};
 
 DB.prototype.set = function(key, value, setState = false) {
     if (this.overUsed()) {
         this.resize();
     }
+    this.keyDetails(key);
     key = JSON.stringify(key);
     const hashLocation = hashCode(key, this.SIZE);
     if (!this.storage[hashLocation]) {
@@ -164,6 +183,45 @@ function hashCode(string, size) {
     }
     return Math.abs(hash) % size;
 }
+
+DB.prototype.dump = async function() {
+    const hashListing = this.hashDirectory();
+    var jsonContent = JSON.stringify(hashListing);
+    try {
+        await fs.writeFileSync("data/data.json", jsonContent)
+        return {
+            state: true,
+            message: "Ok"
+        };
+    } catch (err) {
+        console.error(err)
+        return {
+            state: false,
+            message: err
+        };
+    }
+};
+
+DB.prototype.reset = async function() {
+    try {
+        let hashListing = await fs.readFileSync("data/data.json", "utf8");
+        hashListing = JSON.parse(hashListing);
+        this.storage = new Array(this.SIZE);
+        Object.keys(hashListing).forEach(item => {
+            this.set(item, hashListing[item], true)
+        });
+        return {
+            state: true,
+            message: "Ok"
+        };
+    } catch (err) {
+        console.error(err);
+        return {
+            state: false,
+            message: err
+        };
+    }
+};
 
 /**
  * Export a closed version of DB as a static object

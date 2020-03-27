@@ -1,52 +1,61 @@
-// app.use(bodyParser.urlencoded({
-//     extended: true
-// }));
-// app.use(bodyParser.json());
-
 var express = require("express");
 var path = require("path");
 const fs = require("fs");
-var favicon = require("serve-favicon");
 var logger = require("morgan");
-var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 
-var { database } = require("./db");
+const index = require("./routes/index");
 
-var index = require("./routes/index");
+const happyButtonApp = express();
 
-var happyButtonApp = express();
+happyButtonApp.use(bodyParser.urlencoded({
+    extended: true
+}));
+happyButtonApp.use(bodyParser.json());
 
-// view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "jade");
+happyButtonApp.use(logger("dev"));
+happyButtonApp.use(express.static("public"));
 
-// we've got no icon for the backend for now
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger("dev"));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
-
-app.use("/", index);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-    var err = new Error("Not Found");
-    err.status = 404;
-    next(err);
+// Enable CORS from client-side
+happyButtonApp.use(function(req, res, next) {
+    if (req.headers.origin != undefined) {
+        res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+    }
+    res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+    );
+    res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization, Access-Control-Allow-Credentials, x-auth, x-version, x-route"
+    );
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    next();
 });
 
+// // catch 404 and forward to error handler
+// happyButtonApp.use(function(req, res, next) {
+//     var err = new Error("Not Found");
+//     err.status = 404;
+//     next(err);
+// });
+
 // error handler
-app.use(function(err, req, res, next) {
+happyButtonApp.use(function(err, req, res, next) {
     // set locals, only providing error in development
+
     res.locals.message = err.message;
     res.locals.error = req.app.get("env") === "development" ? err : {};
 
     // render the error page
     res.status(err.status || 500);
-    res.render("error");
+    // res.render("error");
 });
+
+happyButtonApp.get("/", function(req, res, next) {
+    res.sendFile(`${__dirname}/views/index.html`);
+});
+
+happyButtonApp.use("/", index);
 
 module.exports = happyButtonApp;
