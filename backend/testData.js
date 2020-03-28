@@ -71,7 +71,7 @@ const data = {
       type: "sound",
       resource: "sourceImages/I_Farted.mp3"
     }
-  }
+  },
 
   video: {
     key1: {
