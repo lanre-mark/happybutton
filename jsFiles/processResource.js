@@ -14,7 +14,7 @@ function processResource(passedResource) {
   }
 
   // handle image
-  if(resourceType === 'image'){
+  if(resourceType === 'picture'){
 //This return images...but not reliably. Too many random errors
     // setTimeout(() => {
     //   const cuteImage = document.createElement('img');
@@ -48,5 +48,5 @@ function processResource(passedResource) {
 
   function removeAllContent() {
     documentTime.removeChild(happyContainer);
-    delete window.documentTime;
+   
   }

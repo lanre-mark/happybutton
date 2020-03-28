@@ -10,12 +10,18 @@ happyButtonEl.addEventListener('mousedown', function(){
   happyButtonEl.classList.add('mouseDown');
   
   //obtains resource -- SHOULD BE REPLACED WITH DB.GENERATE
-  let resource = getResource(data);
-  console.log('obtained Resource:', resource);
-  
+  //let resource = getResource(data);
+  let resource = resourceWork();
   //NO NEED TO CHANGE THIS AS LONG AS RESOURCE OBJECT HAS TYPE AND RESOURCE URL
-  processResource(resource);
+  //processResource(resource);
 });
+
+async function resourceWork(){
+  let resource = await fetchResource();
+  console.log('obtained Resource:', resource);
+  processResource(resource);
+
+}
 
 clickFaceEl.addEventListener('mouseup', () => happyButtonEl.classList.remove('mouseDown'));
 

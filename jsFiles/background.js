@@ -24,6 +24,10 @@ chrome.commands.onCommand.addListener((command) => {
   chrome.tabs.executeScript({
     file: 'backend/testData.js'
   });
+
+  chrome.tabs.executeScript({
+    file: 'jsFiles/fetchResource.js'
+  });
   
   chrome.tabs.executeScript({
     file: 'jsFiles/dataObject.js'
