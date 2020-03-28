@@ -4,7 +4,7 @@ const fs = require("fs");
 var logger = require("morgan");
 var bodyParser = require("body-parser");
 
-const index = require("./routes/index");
+const index = require("../routes/index");
 
 const happyButtonApp = express();
 

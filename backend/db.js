@@ -248,7 +248,7 @@ DB.prototype.generate = function() {
             state: true,
             message: {
                 type: keyResource.type,
-                data: this.get(resourceKey),
+                resource: this.get(resourceKey),
             }
         }
     }
