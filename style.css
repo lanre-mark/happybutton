@@ -30,6 +30,17 @@
     animation: createButton .5s;
 }
 
+#closeButton {
+    position: absolute;
+    top: 20%;
+    left: 60%;
+    width: 20px;
+    height: 20px;
+    z-index: 110;
+    cursor: crosshair;
+    animation: createButton .5s;
+} 
+
 #cuteImage {
   position: absolute;
     top: 0;

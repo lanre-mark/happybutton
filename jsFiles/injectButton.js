@@ -26,8 +26,18 @@ let imageURL2 = chrome.extension.getURL("sourceImages/clickFace2.png");
 clickFace.src = imageURL2;
 clickFace.setAttribute('id','clickFace');
 
+//create closeButton
+let closeButton = document.createElement('img');
+let imageURL3 = chrome.extension.getURL("sourceImages/closeWindow.png");
+closeButton.src = imageURL3;
+closeButton.setAttribute('id','closeButton');
+
+//create faceDiv
+
+
 //add them to the dom
   documentTime.appendChild(happyContainer);
   happyContainer.appendChild(clickFace);
   happyContainer.appendChild(happyButton);
+  documentTime.appendChild(closeButton);
   

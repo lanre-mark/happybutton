@@ -31,7 +31,7 @@ function processResource(passedResource) {
     });
 
 
-    setTimeout(removeAllContent,10000);
+   // setTimeout(removeAllContent,10000);
   };
 
   // handle website
@@ -41,12 +41,13 @@ function processResource(passedResource) {
       console.log(response.message);
     });
 
-    setTimeout(removeAllContent,10000);
+    //setTimeout(removeAllContent,10000);
   };
 
   }
 
   function removeAllContent() {
+    console.log('called Remove');
     documentTime.removeChild(happyContainer);
    
   }

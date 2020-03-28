@@ -1,13 +1,13 @@
 
-let happyButtonEl = document.getElementById('happyButton');
-let clickFaceEl = document.getElementById('clickFace');
+//let happyButtonEl = document.getElementById('happyButton');
+//let clickFaceEl = document.getElementById('clickFace');
 
 
-happyButtonEl.addEventListener('mousedown', function(){
+happyButton.addEventListener('mousedown', function(){
   console.log('hit the event!');
   
   
-  happyButtonEl.classList.add('mouseDown');
+  happyButton.classList.add('mouseDown');
   
   //obtains resource -- SHOULD BE REPLACED WITH DB.GENERATE
   //let resource = getResource(data);
@@ -23,5 +23,10 @@ async function resourceWork(){
 
 }
 
-clickFaceEl.addEventListener('mouseup', () => happyButtonEl.classList.remove('mouseDown'));
+clickFace.addEventListener('mouseup', () => happyButton.classList.remove('mouseDown'));
+closeButton.addEventListener('mouseup', () => {
+  
+  documentTime.removeChild(happyContainer);
+  documentTime.removeChild(closeButton);
+});
 
