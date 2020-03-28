@@ -44,6 +44,16 @@ function processResource(passedResource) {
     //setTimeout(removeAllContent,10000);
   };
 
+  // handle video
+  if(resourceType === 'video'){
+    console.log(passedResource.resource);
+    chrome.runtime.sendMessage({message: passedResource.resource}, (response) => {
+      console.log(response.message);
+    });
+
+    //setTimeout(removeAllContent,10000);
+  };
+
   }
 
   function removeAllContent() {

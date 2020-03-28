@@ -26,27 +26,27 @@ const data = {
 
   image: {
     key1: {
-      type: "image",
+      type: "picture",
       resource: "http://www.cutestpaw.com/wp-content/uploads/2011/11/oh-noes.jpg"
     },
 
     key2: {
-      type: "image",
+      type: "picture",
       resource: "http://www.cutestpaw.com/wp-content/uploads/2014/09/Jungle-Cruise.jpg"
     },
 
     key3: {
-      type: "image",
+      type: "picture",
       resource: "http://www.cutestpaw.com/wp-content/uploads/2016/02/The-very-dangerous-cat-bear..jpg"
     },
 
     key4: {
-      type: "image",
+      type: "picture",
       resource: "https://pbs.twimg.com/media/Cg8k6XdWMAAByhd?format=jpg&name=small"
     },
 
     key5: {
-      type: "image",
+      type: "picture",
       resource: "http://www.cutestpaw.com/wp-content/uploads/2016/02/When-theyre-little-damn-if-they-arent-cute.jpg"
     }
   },
@@ -76,7 +76,7 @@ const data = {
   video: {
     key1: {
       type: "video",
-      resource: "link"
+      resource: "https://www.youtube.com/watch?v=xBUyILhxcZI"
     }
   }
 
