@@ -22,9 +22,30 @@ https://stackoverflow.com/questions/4532236/how-to-access-the-webpage-dom-rather
 
 chrome.commands.onCommand.addListener((command) => {
   chrome.tabs.executeScript({
-  file: 'jsFiles/injectButton.js'
+    file: 'backend/testData.js'
   });
+  
   chrome.tabs.executeScript({
-  file: 'main.js'
+    file: 'jsFiles/dataObject.js'
+  });
+  
+  chrome.tabs.executeScript({
+    file: 'jsFiles/processResource.js'
+  });
+  
+  chrome.tabs.executeScript({
+    file: 'jsFiles/injectButton.js'
+  });
+  
+  chrome.tabs.executeScript({
+    file: 'main.js'
   });
 });
+
+chrome.runtime.onMessage.addListener(
+  (request, sender, sendResponse) => {
+    console.log(request);
+    chrome.tabs.create({ url: request.message });
+    sendResponse({message: "Got it!"});
+  }
+)

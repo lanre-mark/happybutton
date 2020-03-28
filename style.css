@@ -25,12 +25,20 @@
     left: 0;
     width: 65%;
     height: 100%;
+    z-index: 99;
     cursor: crosshair;
-    animation: createButton .7s;
+    animation: createButton .5s;
 }
 
-.mouseDown {
-  visibility: hidden;
+#cuteImage {
+  position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 110%;
+    z-index: 101;
+    cursor: crosshair;
+    animation: createButton .5s;
 }
 
 @keyframes createButton {
@@ -42,6 +50,10 @@
         transform: scale(1);
     }
 
+}
+
+.mouseDown {
+  visibility: hidden;
 }
 
 
