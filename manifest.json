@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "name": "Happy Button",
+  "version": "1",
+  "description": "Feeling blue? Try hitting Ctrl+Shift+Y",
+  "icons": {
+    "16" : "sourceImages/smileyButton.png",
+    "48" : "sourceImages/smileyButton.png",
+    "128" : "sourceImages/smileyButton.png"
+  },
+
+  "background": {
+    "scripts": ["jsFiles/background.js"],
+    "persistent": false
+  },
+
+  "permissions" : ["activeTab"],
+
+  "commands" : {
+    "displayButton": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Reveal Happy Button"
+    }
+
+  },
+
+  "web_accessible_resources": [
+    "sourceImages/*.png"
+  ]
+}
