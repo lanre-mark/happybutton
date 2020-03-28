@@ -6,3 +6,4 @@ const documentTime = document.querySelector("body");
   //let imageURL = 'https://i.picsum.photos/id/545/200/300.jpg'
   happyButton.src = imageURL;
   documentTime.appendChild(happyButton);
+  
