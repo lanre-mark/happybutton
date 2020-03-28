@@ -28,6 +28,7 @@
   },
 
   "web_accessible_resources": [
-    "sourceImages/*.png"
+    "sourceImages/*.png",
+    "style.css"
   ]
 }

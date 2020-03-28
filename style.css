@@ -1,0 +1,40 @@
+.happyContainer {
+    position: absolute;
+    height: 50%;
+    width: 50%;
+    top: 50%;
+    left: 50%;
+   margin-left: -25%;
+   margin-top: -25%;
+}
+
+.happyButton {
+    position: absolute;
+    width: 65%;
+    height: 100%;
+    z-index: 100;
+    cursor: crosshair;
+    animation: createButton .5s;
+}
+
+.clickFace {
+    position: absolute;
+    width: 65%;
+    height: 100%;
+    cursor: crosshair;
+    animation: createButton .7s;
+}
+
+@keyframes createButton {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+
+}
+
+
+
