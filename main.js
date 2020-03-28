@@ -9,11 +9,14 @@ happyButton.addEventListener('mousedown', function(){
   
   happyButton.classList.add('mouseDown');
   
-  //obtains resource -- SHOULD BE REPLACED WITH DB.GENERATE
-  //let resource = getResource(data);
+  //LIVE DATABASE
   let resource = resourceWork();
-  //NO NEED TO CHANGE THIS AS LONG AS RESOURCE OBJECT HAS TYPE AND RESOURCE URL
-  //processResource(resource);
+
+  
+  // //NO NEED TO CHANGE THIS AS LONG AS RESOURCE OBJECT HAS TYPE AND RESOURCE URL
+  // //FOR STATIC DATABASE
+  // let resource = getResource(data);
+  // processResource(resource);
 });
 
 async function resourceWork(){
