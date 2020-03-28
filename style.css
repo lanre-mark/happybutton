@@ -8,8 +8,10 @@
    margin-top: -25%;
 }
 
-.happyButton {
+#happyButton {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 65%;
     height: 100%;
     z-index: 100;
@@ -17,12 +19,18 @@
     animation: createButton .5s;
 }
 
-.clickFace {
+#clickFace {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 65%;
     height: 100%;
     cursor: crosshair;
     animation: createButton .7s;
+}
+
+.mouseDown {
+  visibility: hidden;
 }
 
 @keyframes createButton {

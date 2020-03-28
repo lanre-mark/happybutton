@@ -24,4 +24,7 @@ chrome.commands.onCommand.addListener((command) => {
   chrome.tabs.executeScript({
   file: 'jsFiles/injectButton.js'
   });
+  chrome.tabs.executeScript({
+  file: 'main.js'
+  });
 });

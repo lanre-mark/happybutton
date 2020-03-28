@@ -18,16 +18,16 @@ const documentTime = document.querySelector("body");
   const happyButton = document.createElement('img');
   let imageURL = chrome.extension.getURL("sourceImages/smileyButton.png");
   happyButton.src = imageURL;
-  happyButton.classList.add('happyButton');
+  happyButton.setAttribute('id','happyButton');
 
 //create clickFace
 const clickFace = document.createElement('img');
 let imageURL2 = chrome.extension.getURL("sourceImages/clickFace2.png");
 clickFace.src = imageURL2;
-clickFace.classList.add('clickFace');
+clickFace.setAttribute('id','clickFace');
 
 //add them to the dom
   documentTime.appendChild(happyContainer);
-  happyContainer.appendChild(happyButton);
   happyContainer.appendChild(clickFace);
+  happyContainer.appendChild(happyButton);
   
