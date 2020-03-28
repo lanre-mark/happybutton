@@ -30,11 +30,15 @@
         "body-parser": "^1.19.0",
         "cookie-parser": "^1.4.5",
         "debug": "^4.1.1",
+        "dotenv": "^8.2.0",
         "express": "^4.17.1",
         "jade": "^1.11.0",
         "morgan": "^1.10.0",
         "nodemon": "^2.0.2",
+        "object-hash": "^2.0.3",
         "serve-favicon": "^2.5.0",
-        "youtube-api-es6": "^1.0.3"
+        "superagent": "^5.2.2",
+        "youtube-api-v3-search": "^1.2.1",
+        "youtube-search": "^1.1.4"
     }
 }

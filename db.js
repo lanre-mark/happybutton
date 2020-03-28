@@ -13,7 +13,11 @@
  */
 
 const fs = require("fs");
-
+const hash = require("object-hash");
+var promise = require("bluebird");
+const searchYoutubeVideos = require("youtube-search");
+// const searchYoutubeVIdeos = require("youtube-api-v3-search");
+require("dotenv").config({ path: __dirname + "/.env" });
 /**
  * Database HashTable costructor
  *
@@ -26,35 +30,79 @@ function DB() {
     this.storage = new Array(this.SIZE);
     // these other properties of the key will help maintain a better randomized response
     this.types = {};
-    this.types[0] = "video";
+    this.types["video"] = "video";
     this.sections = {};
     this.slugs = {};
 }
 
-DB.prototype.keyDetails = function(key) {
+DB.prototype.keyDetails = function(key, invert = false) {
     if (key.type && !this.types[key.type]) {
-        this.types[Object.keys(this.types).length] = key.type;
+        // this.types[Object.keys(this.types).length] = key.type;
+        this.types[key.type] = key.type;
     }
+    // else {
+    //     if (invert) {
+    //         const typeKey = JSON.parse(key);
+    //         if (typeKey.type && !this.types[typeKey.type]) {
+    //             // this.types[Object.keys(this.types).length] = typeKey.type;
+    //             this.types[typeKey.type] = typeKey.type;
+    //         }
+    //     }
+    // }
     if (key.section && !this.sections[key.section]) {
-        this.sections[Object.keys(this.sections).length] = key.section;
+        // this.sections[Object.keys(this.sections).length] = key.section;
+        this.sections[key.section] = key.section;
     }
+    // else {
+    //     if (invert) {
+    //         const typeKey = JSON.parse(key);
+    //         if (typeKey.section && !this.sections[typeKey.section]) {
+    //             // this.sections[Object.keys(this.sections).length] = typeKey.section;
+    //             this.sections[typeKey.section] = typeKey.section;
+    //         }
+    //     }
+    // }
     if (key && !this.slugs[JSON.stringify(key)]) {
-        this.slugs[Object.keys(this.slugs).length] = JSON.stringify(key);
+        // this.slugs[Object.keys(this.slugs).length] = JSON.stringify(key);
+        // if (invert) {
+        //     this.slugs[key] = key;
+        // } else {
+        this.slugs[JSON.stringify(key)] = JSON.stringify(key);
+        // }
     }
 };
 
-DB.prototype.set = function(key, value, setState = false) {
+DB.prototype.set = function(key, value = null, setState = false) {
     if (this.overUsed()) {
         this.resize();
     }
-    this.keyDetails(key);
-    key = JSON.stringify(key);
+    // const param = {
+    //   section: "cute-baby-animals-12",
+    //   type: "picture",
+    //   data: "https://static.boredpanda.com/blog/wp-content/uuuploads/cute-baby-animals/cute-baby-animals-12.jpg"
+    // }
+    if (!setState) {
+        const hashKey = {
+            section: key.section,
+            type: key.type
+        };
+        value = key;
+        this.keyDetails(hashKey);
+        key = hash(hashKey);
+    } else {
+        const hashKey = {
+            section: value.section,
+            type: value.type
+        };
+        this.keyDetails(hashKey);
+    }
     const hashLocation = hashCode(key, this.SIZE);
     if (!this.storage[hashLocation]) {
         this.storage[hashLocation] = {};
     }
     this.storage[hashLocation][key] = value;
-    if (!setState) return ++this.length;
+    return ++this.length;
+    // if (!setState) return this.length;
 };
 
 /**
@@ -141,8 +189,10 @@ DB.prototype.hashDirectory = function() {
  * hash table
  */
 DB.prototype.get = function(key) {
-    key = JSON.stringify(key);
+    // key = JSON.stringify(key);
     const hashLocation = hashCode(key, this.SIZE);
+    console.log(hashLocation);
+    console.log(this.storage[hashLocation]);
     return this.storage[hashLocation] &&
         this.storage[hashLocation].hasOwnProperty(key) ?
         this.storage[hashLocation][key] :
@@ -154,12 +204,14 @@ DB.prototype.get = function(key) {
  *  item drops the number of stored items to be less than 25 % of the hash table 's SIZE
  *  (rounding down), then reduce the hash table 's SIZE by 1/2 and rehash everything.
  */
-DB.prototype.remove = function(key) {
+DB.prototype.remove = function(key, invert = false) {
     if (this.SIZE > 1024 && this.underUsed()) {
         // resize if under utilized hence reduce size
         this.resize(1);
     }
-    key = JSON.stringify(key);
+    if (!invert) {
+        key = JSON.stringify(key);
+    }
     const hashLocation = hashCode(key, this.SIZE);
     if (
         this.storage[hashLocation] &&
@@ -189,13 +241,14 @@ DB.prototype.dump = async function() {
     const hashListing = this.hashDirectory();
     var jsonContent = JSON.stringify(hashListing);
     try {
-        await fs.writeFileSync("data/data.json", jsonContent)
+        await fs.writeFileSync("data/data.json", jsonContent);
         return {
             state: true,
-            message: "Ok"
+            message: "Ok",
+            data: "data/data.json"
         };
     } catch (err) {
-        console.error(err)
+        console.error(err);
         return {
             state: false,
             message: err
@@ -208,8 +261,12 @@ DB.prototype.reset = async function() {
         let hashListing = await fs.readFileSync("data/data.json", "utf8");
         hashListing = JSON.parse(hashListing);
         this.storage = new Array(this.SIZE);
+        // const testLoadKey = Object.keys(hashListing)[0];
+        // console.log(testLoadKey);
+        // console.log(hashListing[testLoadKey]);
+        // this.set(testLoadKey, hashListing[testLoadKey], true);
         Object.keys(hashListing).forEach(item => {
-            this.set(item, hashListing[item], true)
+            this.set(item, hashListing[item], true);
         });
         return {
             state: true,
@@ -224,40 +281,227 @@ DB.prototype.reset = async function() {
     }
 };
 
-
 const shuffle = function(collection) {
     if (collection) {
         for (let ii = collection.length - 1; ii > 0; ii--) {
-            const jj = Math.floor(Math.random() * ii)[collection[ii], collection[jj]] = [collection[jj], collection[ii]];
+            const jj = Math.floor(Math.random() * ii);
+            [collection[ii], collection[jj]] = [collection[jj], collection[ii]];
         }
     }
     return collection;
-}
+};
 
-const randomizeType = (rangeSize) => {
+const randomizeType = rangeSize => {
     return Number((Math.random() * (Math.floor(rangeSize) - 1)).toFixed(0));
-}
+};
 
-DB.prototype.generate = function() {
-    const resourceKey = this.slugs[randomizeType(shuffle(Object.keys(this.slugs)).length)]
-    const keyResource = JSON.parse(resourceKey);
-    if (keyResource.type === "video") {
+DB.prototype.generate = async function() {
+    // const generateResource = function(callback) {
+    // randomize on the this.types
+    let genType = randomizeType(Object.keys(this.types).length);
+    // console.log(this.types);
+    genType = Object.values(this.types)[genType];
+    if (genType === "video") {
         // handle the YOUTUBE API SEARCH
+
+        /**
+         * These keywords will help provide a more randomized selection fom the Youtunbe API
+         * Rather than send static paramters in the payload, we need to randomly select from the
+         *      options acceptable by the youtube API
+         */
+        const videoDuration = ["any", "short", "medium", "long"];
+        const orderVideo = ["date", "rating", "relevance", "title", "viewCount"];
+        const keyWords = ["happy", "funny", "moments", "laughter", "hilarious"];
+
+        var opts = {
+            maxResults: 30,
+            type: "video",
+            videoDuration: videoDuration[randomizeType(shuffle(videoDuration).length)], //"medium", // flexible
+            safeSearch: "moderate",
+            order: orderVideo[randomizeType(shuffle(orderVideo).length)], // flexible
+            key: process.env.YOUTUBE_API_KEY
+        };
+
+        const srchKeys = shuffle(keyWords).join("|"); //"happy|funny|moments|laughter|hilarious";
+        // searchYoutubeVideos(srchKeys, opts, function(
+        //   // searchYoutubeVideos(shuffle(keyWords).join("|"), opts, function(
+        //   err,
+        //   results
+        // ) {
+        //   if (err)
+        //     return {
+        //       state: false,
+        //       message: {
+        //         type: genType,
+        //         resource: { status: "Youtube API Error" }
+        //       }
+        //     };
+        //   // shufle results and radnomly select one video record
+        //   const myVideoSelection = results[randomizeType(shuffle(results).length)];
+        //   // console.log(myVideoSelection);
+
+        //   return {
+        //     state: false,
+        //     message: {
+        //       type: genType,
+        //       resource: {
+        //         url: myVideoSelection.link,
+        //         title: myVideoSelection.title,
+        //         description: myVideoSelection.description
+        //       }
+        //     }
+        //   };
+        // });
+        const responseWait = new Promise((resolve, reject) => {
+            searchYoutubeVideos(srchKeys, opts, function(
+                // searchYoutubeVideos(shuffle(keyWords).join("|"), opts, function(
+                err,
+                results
+            ) {
+                if (err)
+                    return reject({
+                        state: false,
+                        message: {
+                            type: genType,
+                            resource: { status: "Youtube API Error" }
+                        }
+                    });
+                // shufle results and radnomly select one video record
+                const myVideoSelection =
+                    results[randomizeType(shuffle(results).length)];
+                // console.log(myVideoSelection);
+
+                return resolve({
+                    state: false,
+                    message: {
+                        type: genType,
+                        resource: myVideoSelection.link,
+                        title: myVideoSelection.title,
+                        description: myVideoSelection.description
+                            // {
+                            //     url: myVideoSelection.link,
+                            //     title: myVideoSelection.title,
+                            //     description: myVideoSelection.description
+                            // }
+                    }
+                });
+            });
+        });
+        let result = await responseWait.then(resp => {
+            return resp;
+        });
+        return result;
+
+        //   .then(rsp => {
+        //     return rsp;
+        // });
+        // console.log("returning");
+        // return response;
+        // return {
+        //     state: false,
+        //     message: {
+        //         type: genType,
+        //         resource: "Youtube video url/link"
+        //     }
+        // };
     } else {
+        let filteredSlugs = Object.values(this.slugs).filter(
+            item => JSON.parse(item).type === genType
+        );
+        // console.log(filteredSlugs);
+        // console.log(filteredSlugs[randomizeType(shuffle(filteredSlugs).length)]);
+        // console.log(
+        //     JSON.parse(filteredSlugs[randomizeType(shuffle(filteredSlugs).length)])
+        // );
+        // console.log(
+        //     hash(
+        //         JSON.parse(filteredSlugs[randomizeType(shuffle(filteredSlugs).length)])
+        //     )
+        // );
         return {
             state: true,
             message: {
-                type: keyResource.type,
-                data: this.get(resourceKey),
+                type: genType,
+                // resource: this.get(
+                //     filteredSlugs[randomizeType(shuffle(filteredSlugs).length)]
+                // )
+                resource: this.get(
+                    hash(
+                        JSON.parse(
+                            filteredSlugs[randomizeType(shuffle(filteredSlugs).length)]
+                        )
+                    )
+                ).data
             }
-        }
+        };
     }
-}
+};
 
+DB.prototype.nextYoutube = function() {
+    /**
+     * These keywords will help provide a more randomized selection fom the Youtunbe API
+     * Rather than send static paramters in the payload, we need to randomly select from the
+     *      options acceptable by the youtube API
+     */
+    const videoDuration = ["any", "short", "medium", "long"];
+    const orderVideo = ["date", "rating", "relevance", "title", "viewCount"];
+    const keyWords = ["happy", "funny", "moments", "laughter", "hilarious"];
+
+    var opts = {
+        maxResults: 30,
+        type: "video",
+        videoDuration: videoDuration[randomizeType(shuffle(videoDuration).length)], //"medium", // flexible
+        safeSearch: "moderate",
+        order: orderVideo[randomizeType(shuffle(orderVideo).length)], // flexible
+        key: process.env.YOUTUBE_API_KEY
+    };
+    const srchKeys = shuffle(keyWords).join("|"); //"happy|funny|moments|laughter|hilarious";
+    // console.log(opts);
+    searchYoutubeVideos(srchKeys, opts, function(
+        // searchYoutubeVideos(shuffle(keyWords).join("|"), opts, function(
+        err,
+        results
+    ) {
+        if (err) return ""; //console.log(err);
+        // shufle results and radnomly select one video record
+        const myVideoSelection = results[randomizeType(shuffle(results).length)];
+        console.log(myVideoSelection);
+    });
+};
+
+// const newHash = new DB();
+
+// newHash.nextYoutube();
+
+// newHash.reset();
+// setTimeout(() => {
+//     console.log(newHash.generate());
+// }, 1000);
+// console.log(newHash);
+// let param = {
+//     section: "cute-baby-animals-12",
+//     type: "picture",
+//     data: "https://static.boredpanda.com/blog/wp-content/uuuploads/cute-baby-animals/cute-baby-animals-12.jpg"
+// };
+
+// newHash.set(param);
+// param = {
+//     section: "cute-baby-animals",
+//     type: "picture",
+//     data: "https://static.boredpanda.com/blog/wp-content/uuuploads/cute-baby-animals/cute-baby-animals-12.jpg"
+// };
+
+// newHash.set(param);
+// console.log(newHash);
+
+// newHash.dump();
+
+// console.log(newHash.generate());
 /**
  * Export a closed version of DB as a static object
  * for use in the rest of the entire application
  */
 module.exports = {
     database: new DB()
+        // happyResource: promise.promisify(generateResource)
 };
