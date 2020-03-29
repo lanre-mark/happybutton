@@ -7,6 +7,7 @@
  * but the collection must have the data required to be randomly released to the extension when requested.
  * 
  * After much thinking, we came up with the idea to use a hash Table to implement the database.
+ * https://medium.com/@sherryhsu/js-objects-and-arrays-which-one-is-faster-cfcdb1281704
  * 
  * The usage of hastable will allow to create a key for the resource to be added based on
  * a couple of sub keys
@@ -97,8 +98,10 @@ function DB() {
 
 /**
  * The DB.prototype.keyDetails method 
+ * this gets a hold of the object key and populates the this.types and this.sections objects 
+ * The key is further strigified and added to the this.slugs object
  */
-DB.prototype.keyDetails = function(key, invert = false) {
+DB.prototype.keyDetails = function(key) {
     if (key.type && !this.types[key.type]) {
         this.types[key.type] = key.type;
     }
@@ -112,13 +115,38 @@ DB.prototype.keyDetails = function(key, invert = false) {
 
 
 /**
- * The DB.prototype.set method 
+ * The DB.prototype.set method adds a given key into the hash Table
+ * There are 3 entry points to invoke theis method
+ * 1.   When the set() method is invoked from the /resources POST endpoint
+ *      This is invoked with only one paramter, key.
+ *      The key paramter is an object containf 3 keys/properties 'section, 'type' and 'data
+ *      This could also be invoked when a youtube search occured and it returns a list of videos
+ *      the vides are saved locally to avoid unavailability of vidoes when the API hits a daily LIMIT
+ * 2.   When the set() is invoked from DB.prototype.reset() method.
+ *      It is invoked with 3 parameters, the key (obviously from the previous content) it will
+ *      be a cryptographic hashed string, the value (the value stored in the data.json) saved alongside 
+ *      the key in the key/value pairs of data.json and the last parameter being setState = true
+ * 3.   When the set() is invoked from DB.prototype.resize() method.
+ *      Here, all the objects are added back to the hash Table after a resize has occured
+ *      It uses 4 paramters as well, the key already in the hashTable, the data/value, setState = true
+ *      and noCount = true
+ *      
  * 
  * @param {Object|string} key - key to lookup in hash table
+ * @param {Object|null} value - value to save alongside the key
+ * @param {Boolean} setState - A Boolean flag that determines if the key is 
+ *                             already cryptographically hashed or not. 
+ *                             The key is already crytographically hashed when DB.prototype.set()
+ *                             in invoked from DB.prototype.resize() and DB.prototype.reset()
+ * @param {Boolean} noCount - A Boolean flag that determines if the this.length property is 
+ *                            incremented and returned. This is always false unless we are performing 
+ *                            a resize. For resize, the length does not need to increase
  * @return {integer} The current number of items in the hash Table
  */
-DB.prototype.set = function(key, value = null, setState = false) {
+DB.prototype.set = function(key, value = null, setState = false, noCount = false) {
+    // first check if the hash Table is already over used before adding a new item
     if (this.overUsed()) {
+        // if over used then, resize it
         this.resize();
     }
     // const param = {
@@ -127,27 +155,40 @@ DB.prototype.set = function(key, value = null, setState = false) {
     //   data: "https://static.boredpanda.com/blog/wp-content/uuuploads/cute-baby-animals/cute-baby-animals-12.jpg"
     // }
     if (!setState) {
+        // if we have invoked this method from youtube video search API or from the /resources endpoint
+        // destructure section and type from the key parameter to create an object key for the item to be saved in hash Table
         const hashKey = {
             section: key.section,
             type: key.type
         };
+        // re-assign key into the value to be save as value and the crytographic hash to be generated as key 
         value = key;
+        // invoke DB.prototype.keyDetails to populate the type, section and slugs object
         this.keyDetails(hashKey);
+        // obtain the crytographic hash of the object key generated with the section and type properties
         key = hash(hashKey);
     } else {
-        const hashKey = {
-            section: value.section,
-            type: value.type
-        };
-        this.keyDetails(hashKey);
+        // here we already have a key which will be a cryptographic hash
+        if (!noCount) {
+            // PROVIDED WE ARE NOT RESIZING as the type, section and slugs are already populated when we are resizing
+            //                                but not when we are performing a RESET
+            // destructure section and type from the value parameter  
+            const hashKey = {
+                section: value.section,
+                type: value.type
+            };
+            // invoke DB.prototype.keyDetails to populate the type, section and slugs object
+            this.keyDetails(hashKey);
+        }
     }
+    // return a hash key for the cryptographic key
     const hashLocation = hashCode(key, this.SIZE);
     if (!this.storage[hashLocation]) {
         this.storage[hashLocation] = {};
     }
     this.storage[hashLocation][key] = value;
-    return ++this.length;
-    // if (!setState) return this.length;
+    // update and return the length if noCount is False
+    if (!noCount) return ++this.length;
 };
 
 /**
@@ -165,7 +206,7 @@ DB.prototype.resize = function(state = 0) {
     state == 0 ? (this.SIZE *= 2) : (this.SIZE /= 2);
     this.storage = new Array(this.SIZE);
     Object.keys(hashListing).forEach(item =>
-        this.set(item, hashListing[item], true)
+        this.set(item, hashListing[item], true, true)
     );
 };
 
