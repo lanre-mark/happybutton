@@ -388,30 +388,37 @@ DB.prototype.dump = async function() {
 
 /**
  * The DB.prototype.reset method 
- * Returns a boolean true/false is hash is over utilized
- *
+ * This method pre-loads the hashTable with data from data.json file within the application
  * 
- * @param {Object|string} key - key to lookup in hash table
- * @return {integer} The current number of items in the hash Table
+ * @return {Object} The object indicates the status of the reset operation
  **/
 DB.prototype.reset = async function() {
     try {
+        // open data.json file
         let hashListing = await fs.readFileSync("data/data.json", "utf8");
+        // parse the content string back into the hashListing label
         hashListing = JSON.parse(hashListing);
+        // re-initialize the this.storage based on the its current SIZE 
         this.storage = new Array(this.SIZE);
         // const testLoadKey = Object.keys(hashListing)[0];
         // console.log(testLoadKey);
         // console.log(hashListing[testLoadKey]);
         // this.set(testLoadKey, hashListing[testLoadKey], true);
+
+        // iterate over the parsed content from data.json and pass them each as an argument 
+        // into Db.prototype.set() is invocation
         Object.keys(hashListing).forEach(item => {
             this.set(item, hashListing[item], true);
         });
+
+        // return status object 
         return {
             state: true,
             message: "Ok"
         };
     } catch (err) {
         console.error(err);
+        // if there is an error, also return
         return {
             state: false,
             message: err
