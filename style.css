@@ -1,0 +1,71 @@
+.happyContainer {
+    position: absolute;
+    height: 50%;
+    width: 50%;
+    top: 50%;
+    left: 50%;
+   margin-left: -25%;
+   margin-top: -25%;
+}
+
+#happyButton {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 65%;
+    height: 100%;
+    z-index: 100;
+    cursor: crosshair;
+    animation: createButton .5s;
+}
+
+#clickFace {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 65%;
+    height: 100%;
+    z-index: 99;
+    cursor: crosshair;
+    animation: createButton .5s;
+}
+
+#closeButton {
+    position: absolute;
+    top: 20%;
+    left: 60%;
+    width: 20px;
+    height: 20px;
+    z-index: 110;
+    cursor: crosshair;
+    animation: createButton .5s;
+} 
+
+#cuteImage {
+  position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 110%;
+    z-index: 101;
+    cursor: crosshair;
+    animation: createButton .5s;
+}
+
+@keyframes createButton {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+
+}
+
+.mouseDown {
+  visibility: hidden;
+}
+
+
+
