@@ -195,16 +195,20 @@ DB.prototype.set = function(key, value = null, setState = false, noCount = false
  *   The DB.prototype.resize method 
  *   If adding the new item will push the number of stored items to over 75 % of
  *   the hash table's SIZE, then double the hash table's SIZE and rehash everything
- * @param {Object|string} key - key to lookup in hash table
- * @return {integer} The current number of items in the hash Table
+ *   @param {Integer} state - To determine the direction of Resize, 0 o increase and 1 to decrease
  */
 DB.prototype.resize = function(state = 0) {
     // perform a resize
     // return a list of all key/value pairs in the hashTabe
+    //  this will also flatten all buckets in the hash table which 
+    //  have collided items i.e. are located in the same bucket based on the hashFunction
     const hashListing = this.hashDirectory();
-    // increase or decrease the size
+    // increase or decrease the size by changing the size of the hashTable
     state == 0 ? (this.SIZE *= 2) : (this.SIZE /= 2);
+    // resize the storage object based on the new this.SIZE 
     this.storage = new Array(this.SIZE);
+    // iterate over the hashListing (hashDirectory) and pass each item as an argument into
+    // the invocation of DB.prototype.set() 
     Object.keys(hashListing).forEach(item =>
         this.set(item, hashListing[item], true, true)
     );
