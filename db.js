@@ -219,10 +219,11 @@ DB.prototype.resize = function(state = 0) {
  * Returns number of locations/buckets used in the HashTables
  *
  * 
- * @param {Object|string} key - key to lookup in hash table
- * @return {integer} The current number of items in the hash Table
+ * @return {integer} The buckets/locations of currently used in the hash Table
  **/
 DB.prototype.hashUtilized = function() {
+    // iterate over the this.storage and count the number of locations/buckets
+    // in the hash Table that contains at least one item
     return this.storage.reduce(function(locationsUsed, eachHashLocation) {
         return eachHashLocation && Object.keys(eachHashLocation).length > 0 ?
             ++locationsUsed :
@@ -235,11 +236,14 @@ DB.prototype.hashUtilized = function() {
  * Returns a boolean true/false is hash is over utilized
  *
  * 
- * @param {Object|string} key - key to lookup in hash table
- * @return {integer} The current number of items in the hash Table
+ * @return {Boolean} Returns a boolean if the hashTable has been over used or not
  **/
 DB.prototype.overUsed = function() {
+    // get the level of utilization of the hash table by invoking DB.prototype.hashUtilized()
     const locationsUsed = this.hashUtilized();
+    // check the percentatge of usage by converting the returned number of buckets/locations 
+    // into percentage 
+    // if the percentage is greater than or equal to 75, then its is overUsed hence return 'true'
     return locationsUsed > 0 ?
         (locationsUsed / this.SIZE) * 100 >= 75.0 ?
         true :
@@ -253,11 +257,14 @@ DB.prototype.overUsed = function() {
  * i.e. the hash table is more than 1024 (which is te default size) but less than 25% utililized
  *
  * 
- * @param {Object|string} key - key to lookup in hash table
- * @return {integer} The current number of items in the hash Table
+ * @return {Boolean} Returns a boolean if the hashTable has been under used or not
  **/
 DB.prototype.underUsed = function() {
+    // get the level of utilization of the hash table by invoking DB.prototype.hashUtilized()
     const locationsUsed = this.hashUtilized();
+    // check the percentatge of usage by converting the returned number of buckets/locations 
+    // into percentage 
+    // if the percentage is less than or equal to 25, then its is overUsed
     return locationsUsed > 0 ?
         (locationsUsed / this.SIZE) * 100 <= 25.0 ?
         true :
