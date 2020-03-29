@@ -3,16 +3,44 @@
  * The usage of hastable will allow to create a key for the resource to be added based on
  * a couple of sub keys
  * For instance, rather than have a conventional database that will save the resources based
- * on a couple of keys such as
- *                              type of resource e.g. music, animals, website, etc
+ * on a couple of fields/columns such as
+ *                              type of resource e.g. sound, picture, website, video etc
  *                              section of type of resource above such as wildlife, pets, laughter, etc
  *                              site url e.g.
  *            These keys are to be used to generate a key for the hash table as they are passed as a concatenated string
  *            into the hash function to generate the hash location
  *
+ * 
+ * CHALLENGES: Using an object containing 'section' and 'type' properties {"section": "cutestpaw", "type": "picture"} to generate 
+ *             a hash key was initially successful. And the data would be returned when the hash table is to be returned.
+ *             When we however invoke the DB.prototype.dump() and saved the file into data/data.json and reload it back into 
+ *             hash table by invoking DB.prototype.reset(), getting the resources back was not correct 100% fo the time. 
+ *             In fact we had less than 45% success rate. 
+ *             After investigating the cause and some research, we discovered that the JSON.stringify() method that stringifies 
+ *             the object before getting it's hash key returned a varied output thereby causing the hash function to return a 
+ *             different key when using data loaded back from the data.json file.
+ * 
+ *             We initially added the 'utf-8' encoding while writing the data to json but it did not work
+ * 
+ *             After a couple of research, we figured a way out by doing below;
+ * 
+ *            If we crypographically hashed the object {"section": "cutestpaw", "type": "picture"} without first stringifying 
+ *            using JSON.stringify({"section": "cutestpaw","type": "picture"}), and then pass the cryptographic hash into the 
+ *            hashCode function. The crypographic hashed value always returned the same hash key.
+ * 
+ *            Hence, rather than invoke the hashCode function with the object {"section": "cutestpaw", "type": "picture}, we 
+ *            invoked the hashCode fucntion with a cryptographic hash of object {"section": "cutestpaw", "type": "picture"}
+ *            
  */
 
+/**
+ * 
+ */
 const fs = require("fs");
+
+/**
+ * 
+ */
 const hash = require("object-hash");
 const searchYoutubeVideos = require("youtube-search");
 // const searchYoutubeVIdeos = require("youtube-api-v3-search");
