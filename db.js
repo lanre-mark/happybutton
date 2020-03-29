@@ -1,5 +1,13 @@
 /**
- * Implementation of resources database for the happybutton google extension
+ * Implementation of resources database for the happybutton google extension 
+ * 
+ * We needed to create a collection of media resources (video, picture, sound and website) in the most minimal way
+ * i.e. without the need for a conventional database since the idea just a basic google extension. 
+ * To compelte the project, the collection is meant to be a backend/web API that the extension commhnicates with 
+ * but the collection must have the data required to be randomly released to the extension when requested.
+ * 
+ * After much thinking, we came up with the idea to use a hash Table to implement the database.
+ * 
  * The usage of hastable will allow to create a key for the resource to be added based on
  * a couple of sub keys
  * For instance, rather than have a conventional database that will save the resources based
@@ -34,27 +42,35 @@
  */
 
 /**
- * 
+ *  Import the 'fs' (File System) internal node module 
+ *  This will be handly in saving the contents of the hashTable into a file
  */
 const fs = require("fs");
 
 /**
- * 
+ * Import a node npm module to create crytographic hashes of objects
+ * This was used to obtain the crytographic hashes of key Objects to be used as keys 
+ * in the hash Table
  */
 const hash = require("object-hash");
+
+/**
+ * Import a node npm module to perform the Youtube API search
+ */
 const searchYoutubeVideos = require("youtube-search");
 // const searchYoutubeVIdeos = require("youtube-api-v3-search");
+
+
 /**
  * Database HashTable costructor
  *
- * construct a new hash table database to store the resources requried for trh happy button
+ * construct a new hash table database to store the resources requried for the happyButton
  *
  */
 function DB() {
     this.SIZE = 1024;
     this.length = 0;
     this.storage = new Array(this.SIZE);
-    // these other properties of the key will help maintain a better randomized response
     this.types = {};
     this.types["video"] = "video";
     this.sections = {};
