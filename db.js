@@ -70,10 +70,27 @@ const searchYoutubeVideos = require("youtube-search");
 function DB() {
     this.SIZE = 1024;
     this.length = 0;
+    /**
+     * The Hash Table is implemented using an Array with this.SIZE buckets
+     */
     this.storage = new Array(this.SIZE);
+    /**
+     * 'types' is an object that saves the unique types of media resources available
+     * It will be used to generate a random type of resources in the Db.prototype.generate() method
+     */
     this.types = {};
     this.types["video"] = "video";
+    /**
+     * 'sections' is an object that saves the unique sections of media resources available 
+     */
     this.sections = {};
+    /**
+     * 'slugs' is an object that saves the all the key objects.
+     *  This slug is the key before the cryptographic hash has been obtained.
+     *  Alos, note that this is stringified before being saved in the slugs object
+     *  It will be used to filter the objects in the hash Table based on a randomly generated type
+     *  in the Db.prototype.generate() method
+     */
     this.slugs = {};
 }
 
