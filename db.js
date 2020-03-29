@@ -19,7 +19,7 @@
  *            into the hash function to generate the hash location
  *
  * 
- * CHALLENGES: Using an object containing 'section' and 'type' properties {"section": "cutestpaw", "type": "picture"} to generate 
+ * CHALLENGES: Using an object containing 'section' and 'type' properties {"section": "cute-baby-animals-12", "type": "picture"} to generate 
  *             a hash key was initially successful. And the data would be returned when the hash table is to be returned.
  *             When we however invoke the DB.prototype.dump() and saved the file into data/data.json and reload it back into 
  *             hash table by invoking DB.prototype.reset(), getting the resources back was not correct 100% fo the time. 
@@ -32,12 +32,12 @@
  * 
  *             After a couple of research, we figured a way out by doing below;
  * 
- *            If we crypographically hashed the object {"section": "cutestpaw", "type": "picture"} without first stringifying 
- *            using JSON.stringify({"section": "cutestpaw","type": "picture"}), and then pass the cryptographic hash into the 
+ *            If we crypographically hashed the object {"section": "cute-baby-animals-12", "type": "picture"} without first stringifying 
+ *            using JSON.stringify({"section": "cute-baby-animals-12","type": "picture"}), and then pass the cryptographic hash into the 
  *            hashCode function. The crypographic hashed value always returned the same hash key.
  * 
- *            Hence, rather than invoke the hashCode function with the object {"section": "cutestpaw", "type": "picture}, we 
- *            invoked the hashCode fucntion with a cryptographic hash of object {"section": "cutestpaw", "type": "picture"}
+ *            Hence, rather than invoke the hashCode function with the object {"section": "cute-baby-animals-12", "type": "picture}, we 
+ *            invoked the hashCode fucntion with a cryptographic hash of object {"section": "cute-baby-animals-12", "type": "picture"}
  *            
  */
 
@@ -94,6 +94,10 @@ function DB() {
     this.slugs = {};
 }
 
+
+/**
+ * The DB.prototype.keyDetails method 
+ */
 DB.prototype.keyDetails = function(key, invert = false) {
     if (key.type && !this.types[key.type]) {
         this.types[key.type] = key.type;
@@ -106,6 +110,13 @@ DB.prototype.keyDetails = function(key, invert = false) {
     }
 };
 
+
+/**
+ * The DB.prototype.set method 
+ * 
+ * @param {Object|string} key - key to lookup in hash table
+ * @return {integer} The current number of items in the hash Table
+ */
 DB.prototype.set = function(key, value = null, setState = false) {
     if (this.overUsed()) {
         this.resize();
@@ -140,10 +151,12 @@ DB.prototype.set = function(key, value = null, setState = false) {
 };
 
 /**
+ *   The DB.prototype.resize method 
  *   If adding the new item will push the number of stored items to over 75 % of
  *   the hash table's SIZE, then double the hash table's SIZE and rehash everything
+ * @param {Object|string} key - key to lookup in hash table
+ * @return {integer} The current number of items in the hash Table
  */
-
 DB.prototype.resize = function(state = 0) {
     // perform a resize
     // return a list of all key/value pairs in the hashTabe
@@ -157,8 +170,12 @@ DB.prototype.resize = function(state = 0) {
 };
 
 /**
+ * The DB.prototype.hashUtilized method 
  * Returns number of locations/buckets used in the HashTables
  *
+ * 
+ * @param {Object|string} key - key to lookup in hash table
+ * @return {integer} The current number of items in the hash Table
  **/
 DB.prototype.hashUtilized = function() {
     return this.storage.reduce(function(locationsUsed, eachHashLocation) {
@@ -169,8 +186,12 @@ DB.prototype.hashUtilized = function() {
 };
 
 /**
+ * The DB.prototype.overUsed method 
  * Returns a boolean true/false is hash is over utilized
  *
+ * 
+ * @param {Object|string} key - key to lookup in hash table
+ * @return {integer} The current number of items in the hash Table
  **/
 DB.prototype.overUsed = function() {
     const locationsUsed = this.hashUtilized();
@@ -182,9 +203,13 @@ DB.prototype.overUsed = function() {
 };
 
 /**
+ * The DB.prototype.underUsed method 
  * Returns a boolean true/false is hash is under utilized
  * i.e. the hash table is more than 1024 (which is te default size) but less than 25% utililized
  *
+ * 
+ * @param {Object|string} key - key to lookup in hash table
+ * @return {integer} The current number of items in the hash Table
  **/
 DB.prototype.underUsed = function() {
     const locationsUsed = this.hashUtilized();
@@ -196,8 +221,12 @@ DB.prototype.underUsed = function() {
 };
 
 /**
+ * The DB.prototype.hashDirectory method 
  * list - List all key/value pairs in the hashTable
  *
+ * 
+ * @param {Object|string} key - key to lookup in hash table
+ * @return {integer} The current number of items in the hash Table
  **/
 DB.prototype.hashDirectory = function() {
     return this.storage.reduce(function listItems(hashItems, hasContent) {
@@ -237,6 +266,9 @@ DB.prototype.get = function(key) {
  *  If the hash table 's SIZE is greater than 16 and the result of removing the
  *  item drops the number of stored items to be less than 25 % of the hash table 's SIZE
  *  (rounding down), then reduce the hash table 's SIZE by 1/2 and rehash everything.
+ * 
+ * @param {Object|string} key - key to lookup in hash table
+ * @return {integer} The current number of items in the hash Table
  */
 DB.prototype.remove = function(key, invert = false) {
     if (this.SIZE > 1024 && this.underUsed()) {
@@ -271,6 +303,14 @@ function hashCode(string, size) {
     return Math.abs(hash) % size;
 }
 
+/**
+ * The DB.prototype.dump method 
+ * Returns a boolean true/false is hash is over utilized
+ *
+ * 
+ * @param {Object|string} key - key to lookup in hash table
+ * @return {integer} The current number of items in the hash Table
+ **/
 DB.prototype.dump = async function() {
     const hashListing = this.hashDirectory();
     var jsonContent = JSON.stringify(hashListing);
@@ -290,6 +330,15 @@ DB.prototype.dump = async function() {
     }
 };
 
+
+/**
+ * The DB.prototype.reset method 
+ * Returns a boolean true/false is hash is over utilized
+ *
+ * 
+ * @param {Object|string} key - key to lookup in hash table
+ * @return {integer} The current number of items in the hash Table
+ **/
 DB.prototype.reset = async function() {
     try {
         let hashListing = await fs.readFileSync("data/data.json", "utf8");
@@ -328,6 +377,16 @@ const shuffle = function(collection) {
 const randomizeType = rangeSize => {
     return Number((Math.random() * (Math.floor(rangeSize) - 1)).toFixed(0));
 };
+
+
+/**
+ * The DB.prototype.generate method 
+ * Returns a boolean true/false is hash is over utilized
+ *
+ * 
+ * @param {Object|string} key - key to lookup in hash table
+ * @return {integer} The current number of items in the hash Table
+ **/
 
 DB.prototype.generate = async function() {
     // const generateResource = function(callback) {
@@ -464,6 +523,10 @@ DB.prototype.generate = async function() {
     }
 };
 
+
+/**
+ * 
+ */
 DB.prototype.nextYoutube = function() {
 
     require("dotenv").config({
@@ -513,11 +576,6 @@ DB.prototype.nextYoutube = function() {
     });
 };
 
-// function dropLet(opts) {
-//     // await this.set(opts);
-//     console.log(opts);
-// }
-
 // const newHash = new DB();
 
 // newHash.nextYoutube();
@@ -546,11 +604,12 @@ DB.prototype.nextYoutube = function() {
 // newHash.dump();
 
 // console.log(newHash.generate());
+
+
 /**
  * Export a closed version of DB as a static object
  * for use in the rest of the entire application
  */
 module.exports = {
     database: new DB()
-        // happyResource: promise.promisify(generateResource)
 };
