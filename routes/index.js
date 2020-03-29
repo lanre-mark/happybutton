@@ -12,7 +12,13 @@
  */
 
 /**
- * 
+ * Just like in server.js, we import the express npm module and store in the express label
+ * But the question is
+ *                  -  Why do we need to do this again when we already did this in server.js
+ *                  -  Asides the above question, this file routes/index.js is also going to be imported
+ *                     into the server.js
+ *           The main reason is that we need a method on the express module and that will be explained 
+ *           in the 3rd line of executable code
  */
 var express = require("express");
 
@@ -22,8 +28,18 @@ var express = require("express");
 var path = require("path");
 
 /**
+ *    After importing the express npm module, we need to invoke the Router sub module from the above express label 
+ *  
  * 
+ * NOTE: It is also possible to have done the below
+ *        var router = require("express").Router()
+ *      INSTEAD of the 2 lines 
+ *        var express = require("express");
+ *        var router = express.Router();
+ * 
+ *      Both methods would achieve the same result
  */
+
 var router = express.Router();
 
 /**
@@ -77,4 +93,13 @@ router.get("/generate", async(req, res, next) => {
     return res.status(200).send(genRate.message);
 });
 
+
+/**
+ * 
+ * 
+ * 
+ * This is exported as an importable object outside this file using the require keyword like in the 
+ * server.js 
+ * You can print the object to have an idea of what it looks like as well.
+ */
 module.exports = router;

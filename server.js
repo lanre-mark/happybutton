@@ -1,7 +1,8 @@
 /**
  * Loads the most common module on node. The express modele added to the project from 
  * npm using npm install express on the command line of the project's root. 
- * The module handles the routes exposed by the application as a REST API
+ * The module amongst other functionalities handles the routes exposed by the 
+ * application as a REST API
  */
 var express = require("express");
 /**
@@ -183,7 +184,8 @@ happyButtonApp.use("/", index);
 
 /**
  * the happyButtonApp label is now an object contains all the methods defined above
- * the methods consists of middlewares, routes, exposed modules __proto__ etc
+ * the methods consists of middlewares, routes, exposed modules __proto__ etc.
+ * This is exported as an importable object outside this file using the require keyword
  * You can print the object to have an idea of what it looks like
  */
 module.exports = happyButtonApp;
