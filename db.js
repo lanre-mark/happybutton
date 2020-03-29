@@ -448,10 +448,9 @@ const randomizeType = rangeSize => {
 
 /**
  * The DB.prototype.generate method 
- * Returns a boolean true/false is hash is over utilized
+ * 
  *
  * 
- * @param {Object|string} key - key to lookup in hash table
  * @return {integer} The current number of items in the hash Table
  **/
 
