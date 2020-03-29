@@ -14,12 +14,8 @@
 
 const fs = require("fs");
 const hash = require("object-hash");
-var promise = require("bluebird");
 const searchYoutubeVideos = require("youtube-search");
 // const searchYoutubeVIdeos = require("youtube-api-v3-search");
-require("dotenv").config({
-    path: __dirname + "/.env"
-});
 /**
  * Database HashTable costructor
  *
@@ -408,6 +404,11 @@ DB.prototype.generate = async function() {
 };
 
 DB.prototype.nextYoutube = function() {
+
+    require("dotenv").config({
+        path: __dirname + "/.env"
+    });
+
     /**
      * These keywords will help provide a more randomized selection fom the Youtunbe API
      * Rather than send static paramters in the payload, we need to randomly select from the
