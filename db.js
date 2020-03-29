@@ -360,17 +360,21 @@ function hashCode(string, size) {
 
 /**
  * The DB.prototype.dump method 
- * Returns a boolean true/false is hash is over utilized
- *
+ * This method dumps the contents of the hashTable into data.json file within the application
+ * this is further downloaded for the user once the operation successgully completed automatically
  * 
- * @param {Object|string} key - key to lookup in hash table
- * @return {integer} The current number of items in the hash Table
+ * @return {Object} Returns an object indicating the status of the dump operation
  **/
 DB.prototype.dump = async function() {
+    // invoke Db.prototype.hashDirectory() to generate the current listing of all the items/objects
+    // currently stored in the hash Table
     const hashListing = this.hashDirectory();
+    // since this returns an object, stringify the object
     var jsonContent = JSON.stringify(hashListing);
+    // write the strigified listing into data.json
     try {
         await fs.writeFileSync("data/data.json", jsonContent);
+        //return successful status
         return {
             state: true,
             message: "Ok",
@@ -378,6 +382,7 @@ DB.prototype.dump = async function() {
         };
     } catch (err) {
         console.error(err);
+        //return an erro status
         return {
             state: false,
             message: err
