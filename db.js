@@ -276,11 +276,13 @@ DB.prototype.underUsed = function() {
  * The DB.prototype.hashDirectory method 
  * list - List all key/value pairs in the hashTable
  *
- * 
- * @param {Object|string} key - key to lookup in hash table
- * @return {integer} The current number of items in the hash Table
+ * @return {OBject} An object list of all key/valye pairs of items/objects in the hash Table
  **/
 DB.prototype.hashDirectory = function() {
+    // iterate through the this.storage and in each of the location/bucket
+    // ietrate over all the objects and nested objects
+    // each time adding them into the object hashContentInRow
+    // this is then returned as the list of all items/objects in the hash Table
     return this.storage.reduce(function listItems(hashItems, hasContent) {
         return Object.keys(hasContent).reduce(function itemsInRow(
                 hashContentInRow,
@@ -299,12 +301,11 @@ DB.prototype.hashDirectory = function() {
  * - If more than one value is stored at the key's hashed address, then you must retrieve
  *   the correct value that was originally stored with the provided key
  *
- * @param {string} key - key to lookup in hash table
- * @return {string|number|boolean} The value stored with the specifed key in the
+ * @param {string} key - cryptographic hash key to lookup in hash table
+ * @return {Object} The value stored with the specifed cryptographic key in the
  * hash table
  */
 DB.prototype.get = function(key) {
-    // key = JSON.stringify(key);
     const hashLocation = hashCode(key, this.SIZE);
     console.log(hashLocation);
     console.log(this.storage[hashLocation]);
@@ -315,21 +316,21 @@ DB.prototype.get = function(key) {
 };
 
 /**
- *  If the hash table 's SIZE is greater than 16 and the result of removing the
+ *  If the hash table 's SIZE is greater than 1024 and the result of removing the
  *  item drops the number of stored items to be less than 25 % of the hash table 's SIZE
  *  (rounding down), then reduce the hash table 's SIZE by 1/2 and rehash everything.
  * 
- * @param {Object|string} key - key to lookup in hash table
- * @return {integer} The current number of items in the hash Table
+ * @param {Object} key - cryptographic hashed key to lookup in hash table
+ * @return {Object} The item/object deleted from the hash Table
  */
-DB.prototype.remove = function(key, invert = false) {
+DB.prototype.remove = function(key) {
+    // if the size of the hash Table is greater than the default 1024
+    // and the hash Table is currently underUsed by invoking the DB.prototype.underUsed
     if (this.SIZE > 1024 && this.underUsed()) {
         // resize if under utilized hence reduce size
         this.resize(1);
     }
-    if (!invert) {
-        key = JSON.stringify(key);
-    }
+
     const hashLocation = hashCode(key, this.SIZE);
     if (
         this.storage[hashLocation] &&
@@ -337,7 +338,9 @@ DB.prototype.remove = function(key, invert = false) {
     ) {
         const delValue = this.storage[hashLocation][key];
         delete this.storage[hashLocation][key];
+        // reduce the length
         this.length--;
+        //return the deleted object
         return delValue;
     }
     return undefined;
