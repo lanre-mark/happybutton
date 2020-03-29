@@ -1,6 +1,11 @@
+/**
+ * These functions contains the code snippets used to scrap media resources from
+ * the websites of interest. The media resources were mainly pictures and a few sounds
+ */
 function scrap() {
+    /// FOR the happyButton backend API hosted on localhost while working on the API  
     // www.unsplash.com
-    images = document.querySelectorAll("img");
+    var images = document.querySelectorAll("img");
     images.forEach(item => {
         if (item.alt !== "") {
             fetch("http://localhost:8000/resources", {
@@ -31,8 +36,12 @@ function scrap() {
         }
     });
 
+
+    /// FOR the happyButton backend API hosted on glicth.com
+
     var countImages = 0;
-    images.forEach(item => {
+    var iMages = document.querySelectorAll("img");
+    iMages.forEach(item => {
         if (item.alt === "") {
             countImages++;
             console.log(item.src);
@@ -40,8 +49,7 @@ function scrap() {
     });
     console.log(countImages);
 
-    images = document.querySelectorAll("img");
-    images.forEach(item => {
+    iMages.forEach(item => {
         if (item.alt !== "") {
             fetch("https://alike-sore-hail.glitch.me/resources", {
                     method: "POST",
