@@ -1,5 +1,12 @@
 #!/usr/bin/env node
 
+/** 
+*   The www file is the entry point of this project. This is file creates the Node.js server
+*   using hte http module in node. 
+*   It setups up debugging and loads the entire app using the server.js as the nucleus/proxy
+*   Declares the port in which the server runs and add an error listerner on the routes
+*/
+
 /**
  * Module dependencies.
  */

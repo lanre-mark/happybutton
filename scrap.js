@@ -31,6 +31,15 @@ function scrap() {
         }
     });
 
+    var countImages = 0;
+    images.forEach(item => {
+        if (item.alt === "") {
+            countImages++;
+            console.log(item.src);
+        }
+    });
+    console.log(countImages);
+
     images = document.querySelectorAll("img");
     images.forEach(item => {
         if (item.alt !== "") {

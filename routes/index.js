@@ -48,7 +48,8 @@ router.get("/reset", async(req, res, next) => {
 
 router.get("/generate", async(req, res, next) => {
     const genRate = await database.generate();
-    console.log(genRate);
+    // console.log(genRate);
+    // console.log(database);
     return res.status(200).send(genRate.message);
     // happyResource.then(rsp => {
     //     console.log(rsp);

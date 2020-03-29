@@ -17,7 +17,9 @@ const hash = require("object-hash");
 var promise = require("bluebird");
 const searchYoutubeVideos = require("youtube-search");
 // const searchYoutubeVIdeos = require("youtube-api-v3-search");
-require("dotenv").config({ path: __dirname + "/.env" });
+require("dotenv").config({
+    path: __dirname + "/.env"
+});
 /**
  * Database HashTable costructor
  *
@@ -37,38 +39,13 @@ function DB() {
 
 DB.prototype.keyDetails = function(key, invert = false) {
     if (key.type && !this.types[key.type]) {
-        // this.types[Object.keys(this.types).length] = key.type;
         this.types[key.type] = key.type;
     }
-    // else {
-    //     if (invert) {
-    //         const typeKey = JSON.parse(key);
-    //         if (typeKey.type && !this.types[typeKey.type]) {
-    //             // this.types[Object.keys(this.types).length] = typeKey.type;
-    //             this.types[typeKey.type] = typeKey.type;
-    //         }
-    //     }
-    // }
     if (key.section && !this.sections[key.section]) {
-        // this.sections[Object.keys(this.sections).length] = key.section;
         this.sections[key.section] = key.section;
     }
-    // else {
-    //     if (invert) {
-    //         const typeKey = JSON.parse(key);
-    //         if (typeKey.section && !this.sections[typeKey.section]) {
-    //             // this.sections[Object.keys(this.sections).length] = typeKey.section;
-    //             this.sections[typeKey.section] = typeKey.section;
-    //         }
-    //     }
-    // }
     if (key && !this.slugs[JSON.stringify(key)]) {
-        // this.slugs[Object.keys(this.slugs).length] = JSON.stringify(key);
-        // if (invert) {
-        //     this.slugs[key] = key;
-        // } else {
         this.slugs[JSON.stringify(key)] = JSON.stringify(key);
-        // }
     }
 };
 
@@ -301,6 +278,7 @@ DB.prototype.generate = async function() {
     let genType = randomizeType(Object.keys(this.types).length);
     // console.log(this.types);
     genType = Object.values(this.types)[genType];
+    // console.log(genType);
     if (genType === "video") {
         // handle the YOUTUBE API SEARCH
 
@@ -323,35 +301,6 @@ DB.prototype.generate = async function() {
         };
 
         const srchKeys = shuffle(keyWords).join("|"); //"happy|funny|moments|laughter|hilarious";
-        // searchYoutubeVideos(srchKeys, opts, function(
-        //   // searchYoutubeVideos(shuffle(keyWords).join("|"), opts, function(
-        //   err,
-        //   results
-        // ) {
-        //   if (err)
-        //     return {
-        //       state: false,
-        //       message: {
-        //         type: genType,
-        //         resource: { status: "Youtube API Error" }
-        //       }
-        //     };
-        //   // shufle results and radnomly select one video record
-        //   const myVideoSelection = results[randomizeType(shuffle(results).length)];
-        //   // console.log(myVideoSelection);
-
-        //   return {
-        //     state: false,
-        //     message: {
-        //       type: genType,
-        //       resource: {
-        //         url: myVideoSelection.link,
-        //         title: myVideoSelection.title,
-        //         description: myVideoSelection.description
-        //       }
-        //     }
-        //   };
-        // });
         const responseWait = new Promise((resolve, reject) => {
             searchYoutubeVideos(srchKeys, opts, function(
                 // searchYoutubeVideos(shuffle(keyWords).join("|"), opts, function(
@@ -363,68 +312,89 @@ DB.prototype.generate = async function() {
                         state: false,
                         message: {
                             type: genType,
-                            resource: { status: "Youtube API Error" }
+                            resource: {
+                                status: err.toString()
+                            }
                         }
                     });
                 // shufle results and radnomly select one video record
-                const myVideoSelection =
-                    results[randomizeType(shuffle(results).length)];
-                // console.log(myVideoSelection);
+                // const myVideoSelection =
+                //     results[randomizeType(shuffle(results).length)];
+                // // console.log(myVideoSelection);
 
-                return resolve({
-                    state: false,
-                    message: {
-                        type: genType,
-                        resource: myVideoSelection.link,
-                        title: myVideoSelection.title,
-                        description: myVideoSelection.description
-                            // {
-                            //     url: myVideoSelection.link,
-                            //     title: myVideoSelection.title,
-                            //     description: myVideoSelection.description
-                            // }
-                    }
-                });
+                // console.log("IN THE VIDEO AND HAS RETURNED");
+                // console.log("SAVE LOCALLY");
+                // if (results.length > 0) {
+                //     results.forEach(async function dropLet(itm) {
+                //         await this.set({
+                //             section: itm.channelTitle,
+                //             type: "video",
+                //             data: itm.link
+                //         });
+                //     });
+                // }
+                // console.log("COMPLETED LOCAL SAVE");
+                // return resolve({
+                //     state: false,
+                //     message: {
+                //         type: genType,
+                //         resource: myVideoSelection.link,
+                //         title: myVideoSelection.title,
+                //         description: myVideoSelection.description
+                //             // {
+                //             //     url: myVideoSelection.link,
+                //             //     title: myVideoSelection.title,
+                //             //     description: myVideoSelection.description
+                //             // }
+                //     }
+                // });
+
+                return resolve(results);
+
             });
         });
-        let result = await responseWait.then(resp => {
-            return resp;
-        });
+        let result = await responseWait
+            .then(resp => {
+                if (Array.isArray(resp)) {
+                    if (resp.length > 0) {
+                        const saveResultsObj = resp.slice();
+                        for (let ii = 0; ii < saveResultsObj.length; ii++) {
+                            if (saveResultsObj[ii]) {
+                                this.set({
+                                    section: saveResultsObj[ii]['channelTitle'],
+                                    type: "video",
+                                    data: saveResultsObj[ii]['link']
+                                });
+                            }
+                        }
+                        // shufle results and radnomly select one video record
+                        const myVideoSelection =
+                            resp[randomizeType(shuffle(resp).length)];
+                        return {
+                            state: false,
+                            message: {
+                                type: genType,
+                                resource: myVideoSelection.link,
+                                title: myVideoSelection.title,
+                                description: myVideoSelection.description
+                            }
+                        };
+                    }
+                }
+                return resp;
+            })
+            .catch(err => {
+                return err;
+            });
         return result;
-
-        //   .then(rsp => {
-        //     return rsp;
-        // });
-        // console.log("returning");
-        // return response;
-        // return {
-        //     state: false,
-        //     message: {
-        //         type: genType,
-        //         resource: "Youtube video url/link"
-        //     }
-        // };
     } else {
         let filteredSlugs = Object.values(this.slugs).filter(
             item => JSON.parse(item).type === genType
         );
-        // console.log(filteredSlugs);
-        // console.log(filteredSlugs[randomizeType(shuffle(filteredSlugs).length)]);
-        // console.log(
-        //     JSON.parse(filteredSlugs[randomizeType(shuffle(filteredSlugs).length)])
-        // );
-        // console.log(
-        //     hash(
-        //         JSON.parse(filteredSlugs[randomizeType(shuffle(filteredSlugs).length)])
-        //     )
-        // );
         return {
             state: true,
             message: {
                 type: genType,
-                // resource: this.get(
-                //     filteredSlugs[randomizeType(shuffle(filteredSlugs).length)]
-                // )
                 resource: this.get(
                     hash(
                         JSON.parse(
@@ -448,7 +418,7 @@ DB.prototype.nextYoutube = function() {
     const keyWords = ["happy", "funny", "moments", "laughter", "hilarious"];
 
     var opts = {
-        maxResults: 30,
+        maxResults: 2,
         type: "video",
         videoDuration: videoDuration[randomizeType(shuffle(videoDuration).length)], //"medium", // flexible
         safeSearch: "moderate",
@@ -462,12 +432,29 @@ DB.prototype.nextYoutube = function() {
         err,
         results
     ) {
-        if (err) return ""; //console.log(err);
+        if (err) return console.log(err);
         // shufle results and radnomly select one video record
-        const myVideoSelection = results[randomizeType(shuffle(results).length)];
-        console.log(myVideoSelection);
+        // console.log(results);
+        if (results.length > 0) {
+            results.forEach(async itm => {
+                // console.log(this);
+                // await dropLet(itm);
+                // await this.set({
+                //     section: itm.channelTitle,
+                //     type: "video",
+                //     data: itm.link
+                // });
+            });
+        }
+        // const myVideoSelection = results[randomizeType(shuffle(results).length)];
+        // console.log(myVideoSelection);
     });
 };
+
+// function dropLet(opts) {
+//     // await this.set(opts);
+//     console.log(opts);
+// }
 
 // const newHash = new DB();
 
