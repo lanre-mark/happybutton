@@ -71,7 +71,11 @@ const happyButtonApp = express();
 
 
 /**
- * 
+ * The extended option allows to choose between parsing the URL - encoded data 
+ * with the querystring library(when false) or the qs library(when true).
+ * The "extended" syntax allows for rich objects and arrays to be encoded into 
+ * the URL - encoded format, allowing for a JSON - like experience with URL - encoded
+ * For more https://stackoverflow.com/questions/29960764/what-does-extended-mean-in-express-4-0
  */
 happyButtonApp.use(
     bodyParser.urlencoded({
@@ -80,17 +84,23 @@ happyButtonApp.use(
 );
 
 /**
- * 
+ *  Adding the body-parser json parser functionailty to the middleware. 
+ *  For more https: //expressjs.com/en/resources/middleware/body-parser.html#bodyparserjsonoptions
  */
 happyButtonApp.use(bodyParser.json());
 
 /**
- * 
+ * This middleware utilizes the morgan module to log activities on the application
+ * Request activities such as the url, files served, time details, etc are logged onto the screen
+ * or on anyother provided in the setup of morgan's configuration. For the purpose of this project
+ * we used the default, loggin to console.
  */
 happyButtonApp.use(logger("dev"));
 
 /**
- * 
+ * This middleware ensures that all files and items in the public folder are served static
+ * Such files include html, css, images and icon assets, etc.
+ * Without this middleware, only the rest endpoints will work and other static files will not be
  */
 happyButtonApp.use(express.static("public"));
 
