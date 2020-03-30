@@ -7,7 +7,7 @@ function scrap() {
     // www.unsplash.com
     var images = document.querySelectorAll("img");
     images.forEach(item => {
-        if (item.alt !== "") {
+        if (item.alt !== "" && item.src !== "") {
             fetch("http://localhost:8000/resources", {
                     method: "POST",
                     headers: {
@@ -50,7 +50,7 @@ function scrap() {
     console.log(countImages);
 
     iMages.forEach(item => {
-        if (item.alt !== "") {
+        if (item.alt !== "" && item.src !== "") {
             fetch("https://alike-sore-hail.glitch.me/resources", {
                     method: "POST",
                     headers: {

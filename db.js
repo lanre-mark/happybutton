@@ -1,14 +1,14 @@
 /**
- * Implementation of resources database for the happybutton google extension 
- * 
+ * Implementation of resources database for the happybutton google extension
+ *
  * We needed to create a collection of media resources (video, picture, sound and website) in the most minimal way
- * i.e. without the need for a conventional database since the idea just a basic google extension. 
- * To compelte the project, the collection is meant to be a backend/web API that the extension commhnicates with 
+ * i.e. without the need for a conventional database since the idea just a basic google extension.
+ * To compelte the project, the collection is meant to be a backend/web API that the extension commhnicates with
  * but the collection must have the data required to be randomly released to the extension when requested.
- * 
+ *
  * After much thinking, we came up with the idea to use a hash Table to implement the database.
  * https://medium.com/@sherryhsu/js-objects-and-arrays-which-one-is-faster-cfcdb1281704
- * 
+ *
  * The usage of hastable will allow to create a key for the resource to be added based on
  * a couple of sub keys
  * For instance, rather than have a conventional database that will save the resources based
@@ -19,38 +19,38 @@
  *            These keys are to be used to generate a key for the hash table as they are passed as a concatenated string
  *            into the hash function to generate the hash location
  *
- * 
- * CHALLENGES: Using an object containing 'section' and 'type' properties {"section": "cute-baby-animals-12", "type": "picture"} to generate 
+ *
+ * CHALLENGES: Using an object containing 'section' and 'type' properties {"section": "cute-baby-animals-12", "type": "picture"} to generate
  *             a hash key was initially successful. And the data would be returned when the hash table is to be returned.
- *             When we however invoke the DB.prototype.dump() and saved the file into data/data.json and reload it back into 
- *             hash table by invoking DB.prototype.reset(), getting the resources back was not correct 100% fo the time. 
- *             In fact we had less than 45% success rate. 
- *             After investigating the cause and some research, we discovered that the JSON.stringify() method that stringifies 
- *             the object before getting it's hash key returned a varied output thereby causing the hash function to return a 
+ *             When we however invoke the DB.prototype.dump() and saved the file into data/data.json and reload it back into
+ *             hash table by invoking DB.prototype.reset(), getting the resources back was not correct 100% fo the time.
+ *             In fact we had less than 45% success rate.
+ *             After investigating the cause and some research, we discovered that the JSON.stringify() method that stringifies
+ *             the object before getting it's hash key returned a varied output thereby causing the hash function to return a
  *             different key when using data loaded back from the data.json file.
- * 
+ *
  *             We initially added the 'utf-8' encoding while writing the data to json but it did not work
- * 
+ *
  *             After a couple of research, we figured a way out by doing below;
- * 
- *            If we crypographically hashed the object {"section": "cute-baby-animals-12", "type": "picture"} without first stringifying 
- *            using JSON.stringify({"section": "cute-baby-animals-12","type": "picture"}), and then pass the cryptographic hash into the 
+ *
+ *            If we crypographically hashed the object {"section": "cute-baby-animals-12", "type": "picture"} without first stringifying
+ *            using JSON.stringify({"section": "cute-baby-animals-12","type": "picture"}), and then pass the cryptographic hash into the
  *            hashCode function. The crypographic hashed value always returned the same hash key.
- * 
- *            Hence, rather than invoke the hashCode function with the object {"section": "cute-baby-animals-12", "type": "picture}, we 
+ *
+ *            Hence, rather than invoke the hashCode function with the object {"section": "cute-baby-animals-12", "type": "picture}, we
  *            invoked the hashCode fucntion with a cryptographic hash of object {"section": "cute-baby-animals-12", "type": "picture"}
- *            
+ *
  */
 
 /**
- *  Import the 'fs' (File System) internal node module 
+ *  Import the 'fs' (File System) internal node module
  *  This will be handly in saving the contents of the hashTable into a file
  */
 const fs = require("fs");
 
 /**
  * Import a node npm module to create crytographic hashes of objects
- * This was used to obtain the crytographic hashes of key Objects to be used as keys 
+ * This was used to obtain the crytographic hashes of key Objects to be used as keys
  * in the hash Table
  */
 const hash = require("object-hash");
@@ -60,7 +60,6 @@ const hash = require("object-hash");
  */
 const searchYoutubeVideos = require("youtube-search");
 // const searchYoutubeVIdeos = require("youtube-api-v3-search");
-
 
 /**
  * Database HashTable costructor
@@ -82,7 +81,7 @@ function DB() {
     this.types = {};
     this.types["video"] = "video";
     /**
-     * 'sections' is an object that saves the unique sections of media resources available 
+     * 'sections' is an object that saves the unique sections of media resources available
      */
     this.sections = {};
     /**
@@ -95,10 +94,9 @@ function DB() {
     this.slugs = {};
 }
 
-
 /**
- * The DB.prototype.keyDetails method 
- * this gets a hold of the object key and populates the this.types and this.sections objects 
+ * The DB.prototype.keyDetails method
+ * this gets a hold of the object key and populates the this.types and this.sections objects
  * The key is further strigified and added to the this.slugs object
  */
 DB.prototype.keyDetails = function(key) {
@@ -113,7 +111,6 @@ DB.prototype.keyDetails = function(key) {
     }
 };
 
-
 /**
  * The DB.prototype.set method adds a given key into the hash Table
  * There are 3 entry points to invoke theis method
@@ -124,26 +121,31 @@ DB.prototype.keyDetails = function(key) {
  *      the vides are saved locally to avoid unavailability of vidoes when the API hits a daily LIMIT
  * 2.   When the set() is invoked from DB.prototype.reset() method.
  *      It is invoked with 3 parameters, the key (obviously from the previous content) it will
- *      be a cryptographic hashed string, the value (the value stored in the data.json) saved alongside 
+ *      be a cryptographic hashed string, the value (the value stored in the data.json) saved alongside
  *      the key in the key/value pairs of data.json and the last parameter being setState = true
  * 3.   When the set() is invoked from DB.prototype.resize() method.
  *      Here, all the objects are added back to the hash Table after a resize has occured
  *      It uses 4 paramters as well, the key already in the hashTable, the data/value, setState = true
  *      and noCount = true
- *      
- * 
+ *
+ *
  * @param {Object|string} key - key to lookup in hash table
  * @param {Object|null} value - value to save alongside the key
- * @param {Boolean} setState - A Boolean flag that determines if the key is 
- *                             already cryptographically hashed or not. 
+ * @param {Boolean} setState - A Boolean flag that determines if the key is
+ *                             already cryptographically hashed or not.
  *                             The key is already crytographically hashed when DB.prototype.set()
  *                             in invoked from DB.prototype.resize() and DB.prototype.reset()
- * @param {Boolean} noCount - A Boolean flag that determines if the this.length property is 
- *                            incremented and returned. This is always false unless we are performing 
+ * @param {Boolean} noCount - A Boolean flag that determines if the this.length property is
+ *                            incremented and returned. This is always false unless we are performing
  *                            a resize. For resize, the length does not need to increase
  * @return {integer} The current number of items in the hash Table
  */
-DB.prototype.set = function(key, value = null, setState = false, noCount = false) {
+DB.prototype.set = function(
+    key,
+    value = null,
+    setState = false,
+    noCount = false
+) {
     // first check if the hash Table is already over used before adding a new item
     if (this.overUsed()) {
         // if over used then, resize it
@@ -161,7 +163,7 @@ DB.prototype.set = function(key, value = null, setState = false, noCount = false
             section: key.section,
             type: key.type
         };
-        // re-assign key into the value to be save as value and the crytographic hash to be generated as key 
+        // re-assign key into the value to be save as value and the crytographic hash to be generated as key
         value = key;
         // invoke DB.prototype.keyDetails to populate the type, section and slugs object
         this.keyDetails(hashKey);
@@ -172,7 +174,7 @@ DB.prototype.set = function(key, value = null, setState = false, noCount = false
         if (!noCount) {
             // PROVIDED WE ARE NOT RESIZING as the type, section and slugs are already populated when we are resizing
             //                                but not when we are performing a RESET
-            // destructure section and type from the value parameter  
+            // destructure section and type from the value parameter
             const hashKey = {
                 section: value.section,
                 type: value.type
@@ -192,7 +194,7 @@ DB.prototype.set = function(key, value = null, setState = false, noCount = false
 };
 
 /**
- *   The DB.prototype.resize method 
+ *   The DB.prototype.resize method
  *   If adding the new item will push the number of stored items to over 75 % of
  *   the hash table's SIZE, then double the hash table's SIZE and rehash everything
  *   @param {Integer} state - To determine the direction of Resize, 0 o increase and 1 to decrease
@@ -200,25 +202,25 @@ DB.prototype.set = function(key, value = null, setState = false, noCount = false
 DB.prototype.resize = function(state = 0) {
     // perform a resize
     // return a list of all key/value pairs in the hashTabe
-    //  this will also flatten all buckets in the hash table which 
+    //  this will also flatten all buckets in the hash table which
     //  have collided items i.e. are located in the same bucket based on the hashFunction
     const hashListing = this.hashDirectory();
     // increase or decrease the size by changing the size of the hashTable
     state == 0 ? (this.SIZE *= 2) : (this.SIZE /= 2);
-    // resize the storage object based on the new this.SIZE 
+    // resize the storage object based on the new this.SIZE
     this.storage = new Array(this.SIZE);
     // iterate over the hashListing (hashDirectory) and pass each item as an argument into
-    // the invocation of DB.prototype.set() 
+    // the invocation of DB.prototype.set()
     Object.keys(hashListing).forEach(item =>
         this.set(item, hashListing[item], true, true)
     );
 };
 
 /**
- * The DB.prototype.hashUtilized method 
+ * The DB.prototype.hashUtilized method
  * Returns number of locations/buckets used in the HashTables
  *
- * 
+ *
  * @return {integer} The buckets/locations of currently used in the hash Table
  **/
 DB.prototype.hashUtilized = function() {
@@ -232,17 +234,17 @@ DB.prototype.hashUtilized = function() {
 };
 
 /**
- * The DB.prototype.overUsed method 
+ * The DB.prototype.overUsed method
  * Returns a boolean true/false is hash is over utilized
  *
- * 
+ *
  * @return {Boolean} Returns a boolean if the hashTable has been over used or not
  **/
 DB.prototype.overUsed = function() {
     // get the level of utilization of the hash table by invoking DB.prototype.hashUtilized()
     const locationsUsed = this.hashUtilized();
-    // check the percentatge of usage by converting the returned number of buckets/locations 
-    // into percentage 
+    // check the percentatge of usage by converting the returned number of buckets/locations
+    // into percentage
     // if the percentage is greater than or equal to 75, then its is overUsed hence return 'true'
     return locationsUsed > 0 ?
         (locationsUsed / this.SIZE) * 100 >= 75.0 ?
@@ -252,18 +254,18 @@ DB.prototype.overUsed = function() {
 };
 
 /**
- * The DB.prototype.underUsed method 
+ * The DB.prototype.underUsed method
  * Returns a boolean true/false is hash is under utilized
  * i.e. the hash table is more than 1024 (which is te default size) but less than 25% utililized
  *
- * 
+ *
  * @return {Boolean} Returns a boolean if the hashTable has been under used or not
  **/
 DB.prototype.underUsed = function() {
     // get the level of utilization of the hash table by invoking DB.prototype.hashUtilized()
     const locationsUsed = this.hashUtilized();
-    // check the percentatge of usage by converting the returned number of buckets/locations 
-    // into percentage 
+    // check the percentatge of usage by converting the returned number of buckets/locations
+    // into percentage
     // if the percentage is less than or equal to 25, then its is overUsed
     return locationsUsed > 0 ?
         (locationsUsed / this.SIZE) * 100 <= 25.0 ?
@@ -273,7 +275,7 @@ DB.prototype.underUsed = function() {
 };
 
 /**
- * The DB.prototype.hashDirectory method 
+ * The DB.prototype.hashDirectory method
  * list - List all key/value pairs in the hashTable
  *
  * @return {OBject} An object list of all key/valye pairs of items/objects in the hash Table
@@ -309,6 +311,7 @@ DB.prototype.get = function(key) {
     const hashLocation = hashCode(key, this.SIZE);
     console.log(hashLocation);
     console.log(this.storage[hashLocation]);
+    console.log(this.length);
     return this.storage[hashLocation] &&
         this.storage[hashLocation].hasOwnProperty(key) ?
         this.storage[hashLocation][key] :
@@ -319,7 +322,7 @@ DB.prototype.get = function(key) {
  *  If the hash table 's SIZE is greater than 1024 and the result of removing the
  *  item drops the number of stored items to be less than 25 % of the hash table 's SIZE
  *  (rounding down), then reduce the hash table 's SIZE by 1/2 and rehash everything.
- * 
+ *
  * @param {Object} key - cryptographic hashed key to lookup in hash table
  * @return {Object} The item/object deleted from the hash Table
  */
@@ -359,10 +362,10 @@ function hashCode(string, size) {
 }
 
 /**
- * The DB.prototype.dump method 
+ * The DB.prototype.dump method
  * This method dumps the contents of the hashTable into data.json file within the application
  * this is further downloaded for the user once the operation successgully completed automatically
- * 
+ *
  * @return {Object} Returns an object indicating the status of the dump operation
  **/
 DB.prototype.dump = async function() {
@@ -390,11 +393,10 @@ DB.prototype.dump = async function() {
     }
 };
 
-
 /**
- * The DB.prototype.reset method 
+ * The DB.prototype.reset method
  * This method pre-loads the hashTable with data from data.json file within the application
- * 
+ *
  * @return {Object} The object indicates the status of the reset operation
  **/
 DB.prototype.reset = async function() {
@@ -403,20 +405,20 @@ DB.prototype.reset = async function() {
         let hashListing = await fs.readFileSync("data/data.json", "utf8");
         // parse the content string back into the hashListing label
         hashListing = JSON.parse(hashListing);
-        // re-initialize the this.storage based on the its current SIZE 
+        // re-initialize the this.storage based on the its current SIZE
         this.storage = new Array(this.SIZE);
         // const testLoadKey = Object.keys(hashListing)[0];
         // console.log(testLoadKey);
         // console.log(hashListing[testLoadKey]);
         // this.set(testLoadKey, hashListing[testLoadKey], true);
 
-        // iterate over the parsed content from data.json and pass them each as an argument 
+        // iterate over the parsed content from data.json and pass them each as an argument
         // into Db.prototype.set() is invocation
         Object.keys(hashListing).forEach(item => {
             this.set(item, hashListing[item], true);
         });
 
-        // return status object 
+        // return status object
         return {
             state: true,
             message: "Ok"
@@ -445,23 +447,22 @@ const randomizeType = rangeSize => {
     return Number((Math.random() * (Math.floor(rangeSize) - 1)).toFixed(0));
 };
 
-
 /**
- * The DB.prototype.generate method 
- * 
+ * The DB.prototype.generate method
+ * The generate method generates a random media resource which is in turn displayed or played
+ * in the extension.
  *
- * 
- * @return {integer} The current number of items in the hash Table
+ * @return {Object} Object returned
  **/
 
 DB.prototype.generate = async function() {
-    // const generateResource = function(callback) {
-    // randomize on the this.types
+    // invoke the randomizeType funcion with the types object to randonly select a type from
+    // video, picture, sound or website
     let genType = randomizeType(Object.keys(this.types).length);
-    // console.log(this.types);
     genType = Object.values(this.types)[genType];
-    // console.log(genType);
+    // now proceed to random generate the media resource of the randomly selected type
     if (genType === "video") {
+        // if the randomly selected type is a video
         // handle the YOUTUBE API SEARCH
 
         /**
@@ -469,9 +470,9 @@ DB.prototype.generate = async function() {
          * Rather than send static paramters in the payload, we need to randomly select from the
          *      options acceptable by the youtube API
          */
-        const videoDuration = ["any", "short", "medium", "long"];
-        const orderVideo = ["date", "rating", "relevance", "title", "viewCount"];
-        const keyWords = ["happy", "funny", "moments", "laughter", "hilarious"];
+        const videoDuration = ["any", "short", "medium", "long"]; // youtube video duration paramter options
+        const orderVideo = ["date", "rating", "relevance", "title", "viewCount"]; // youtube video list return ordering options
+        const keyWords = ["happy", "funny", "moments", "laughter", "hilarious"]; // youtube search keywords
 
         var opts = {
             maxResults: 30,
@@ -491,12 +492,17 @@ DB.prototype.generate = async function() {
             ) {
                 if (err)
                     return reject({
-                        state: false,
+                        // state: false,
+                        // message: {
+                        //     type: genType,
+                        //     resource: {
+                        //         status: err.toString()
+                        //     }
+                        // }
+                        state: true,
                         message: {
                             type: genType,
-                            resource: {
-                                status: err.toString()
-                            }
+                            resource: this.returnRandomResource(genType)
                         }
                     });
                 // shufle results and radnomly select one video record
@@ -532,7 +538,6 @@ DB.prototype.generate = async function() {
                 // });
 
                 return resolve(results);
-
             });
         });
         let result = await responseWait
@@ -543,15 +548,14 @@ DB.prototype.generate = async function() {
                         for (let ii = 0; ii < saveResultsObj.length; ii++) {
                             if (saveResultsObj[ii]) {
                                 this.set({
-                                    section: saveResultsObj[ii]['channelTitle'],
+                                    section: saveResultsObj[ii]["channelTitle"],
                                     type: "video",
-                                    data: saveResultsObj[ii]['link']
+                                    data: saveResultsObj[ii]["link"]
                                 });
                             }
                         }
                         // shufle results and radnomly select one video record
-                        const myVideoSelection =
-                            resp[randomizeType(shuffle(resp).length)];
+                        const myVideoSelection = resp[randomizeType(shuffle(resp).length)];
                         return {
                             state: false,
                             message: {
@@ -570,31 +574,42 @@ DB.prototype.generate = async function() {
             });
         return result;
     } else {
-        let filteredSlugs = Object.values(this.slugs).filter(
-            item => JSON.parse(item).type === genType
-        );
         return {
             state: true,
             message: {
                 type: genType,
-                resource: this.get(
-                    hash(
-                        JSON.parse(
-                            filteredSlugs[randomizeType(shuffle(filteredSlugs).length)]
-                        )
-                    )
-                ).data
+                resource: this.returnRandomResource(genType)
             }
         };
     }
 };
 
+/**
+ * Perform the random selection of media resource based on 'type' randomly generated
+ * @param {string} the randomly selected resource type from this.type object
+ */
+DB.prototype.returnRandomResource = function(type) {
+    // using the this.slugs object
+    // filter this.slugs using the randonly selected type
+    let filteredSlugs = Object.values(this.slugs).filter(
+        item => JSON.parse(item).type === type
+    );
+    // First shuffle the filteredSlugs object i.e. the slugs of random generated type
+    // radomly select an element (i.e. slug)
+    // compute its cryptographic hash
+    // using the has, invoke this.get() to fetch the resource using the cryptographic hash as key
+    // return the resourse returned from the hash Table
+    return this.get(
+        hash(
+            JSON.parse(filteredSlugs[randomizeType(shuffle(filteredSlugs).length)])
+        )
+    ).data;
+};
 
 /**
- * 
+ *
  */
 DB.prototype.nextYoutube = function() {
-
     require("dotenv").config({
         path: __dirname + "/.env"
     });
@@ -670,7 +685,6 @@ DB.prototype.nextYoutube = function() {
 // newHash.dump();
 
 // console.log(newHash.generate());
-
 
 /**
  * Export a closed version of DB as a static object
