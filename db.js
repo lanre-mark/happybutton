@@ -475,74 +475,58 @@ DB.prototype.generate = async function() {
         const keyWords = ["happy", "funny", "moments", "laughter", "hilarious"]; // youtube search keywords
 
         var opts = {
-            maxResults: 30,
-            type: "video",
-            videoDuration: videoDuration[randomizeType(shuffle(videoDuration).length)], //"medium", // flexible
-            safeSearch: "moderate",
-            order: orderVideo[randomizeType(shuffle(orderVideo).length)], // flexible
+            maxResults: 30, // for the search to always return a maximum of 30 videos in its response
+            type: "video", // search could only return a video
+            videoDuration: videoDuration[randomizeType(shuffle(videoDuration).length)], // randomly select a videoDuration paramter from acceptable durations
+            safeSearch: "moderate", // performs a safe video content search and remove prohibited or profane content
+            order: orderVideo[randomizeType(shuffle(orderVideo).length)], // randomly select an order paramter from the list of acceptable orders
             key: process.env.YOUTUBE_API_KEY
         };
 
         const srchKeys = shuffle(keyWords).join("|"); //"happy|funny|moments|laughter|hilarious";
+
+        // the Youtube Search API needed to be wrapped around a Promise in order to avoid being 
+        //  a response to the request occuring before the Youtube API completes its operation
         const responseWait = new Promise((resolve, reject) => {
             searchYoutubeVideos(srchKeys, opts, function(
                 // searchYoutubeVideos(shuffle(keyWords).join("|"), opts, function(
                 err,
                 results
             ) {
-                if (err)
+                if (err) {
+                    // an error has occurred from the youtube API
+                    // this might be for any reason MAJORLY could be Daily Quota Limit exceeded
+                    // Rather than return an error and make the extension freeze for nothing to show
+                    // load a random video from out local Hash Table data store
+
+                    // TO RETURN/RESPONSE TO generate() REQUEST
+                    // add type of resource randomly generated to the return Object
+                    // add the resource; evaluated result of invoking this.returnRandomResource 
+                    //                   with randomly generated type as paramter
+                    // return the object
+
                     return reject({
-                        // state: false,
-                        // message: {
-                        //     type: genType,
-                        //     resource: {
-                        //         status: err.toString()
-                        //     }
-                        // }
                         state: true,
                         message: {
                             type: genType,
                             resource: this.returnRandomResource(genType)
                         }
                     });
-                // shufle results and radnomly select one video record
-                // const myVideoSelection =
-                //     results[randomizeType(shuffle(results).length)];
-                // // console.log(myVideoSelection);
-
-                // console.log("IN THE VIDEO AND HAS RETURNED");
-                // console.log("SAVE LOCALLY");
-                // if (results.length > 0) {
-                //     results.forEach(async function dropLet(itm) {
-                //         await this.set({
-                //             section: itm.channelTitle,
-                //             type: "video",
-                //             data: itm.link
-                //         });
-                //     });
-                // }
-                // console.log("COMPLETED LOCAL SAVE");
-                // return resolve({
-                //     state: false,
-                //     message: {
-                //         type: genType,
-                //         resource: myVideoSelection.link,
-                //         title: myVideoSelection.title,
-                //         description: myVideoSelection.description
-                //             // {
-                //             //     url: myVideoSelection.link,
-                //             //     title: myVideoSelection.title,
-                //             //     description: myVideoSelection.description
-                //             // }
-                //     }
-                // });
+                }
 
                 return resolve(results);
             });
         });
         let result = await responseWait
             .then(resp => {
+                // in the Promisified response Youtube Search
+                // when it complets and returns
+                // if the reponse if an Array, then it means the Youtube Search succeded and returned with a list
+                //              of videos
                 if (Array.isArray(resp)) {
+                    // if the response succeeded with a list of videos
+                    // FIRST
+                    // we iterate over then and save the vidoes into our local hash Table data Store
                     if (resp.length > 0) {
                         const saveResultsObj = resp.slice();
                         for (let ii = 0; ii < saveResultsObj.length; ii++) {
@@ -554,8 +538,11 @@ DB.prototype.generate = async function() {
                                 });
                             }
                         }
+                        // AFTER SAVING INTO LOCAL STORE
                         // shufle results and radnomly select one video record
                         const myVideoSelection = resp[randomizeType(shuffle(resp).length)];
+                        // return an Object containing the randomly selected video as well as initially
+                        // random type
                         return {
                             state: false,
                             message: {
@@ -567,6 +554,8 @@ DB.prototype.generate = async function() {
                         };
                     }
                 }
+                // if the response is not a list of videos
+                // perhaps an error occured and a locally saved 
                 return resp;
             })
             .catch(err => {
@@ -574,6 +563,10 @@ DB.prototype.generate = async function() {
             });
         return result;
     } else {
+        // add type of resource randomly generated to the return Object
+        // add the resource; evaluated result of invoking this.returnRandomResource 
+        //                   with randomly generated type as paramter
+        // return the object
         return {
             state: true,
             message: {
