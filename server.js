@@ -1,16 +1,18 @@
 var express = require("express");
-var path = require("path");
 const fs = require("fs");
 var logger = require("morgan");
 var bodyParser = require("body-parser");
+require("dotenv").config({ path: __dirname + "/.env" });
 
 const index = require("./routes/index");
 
 const happyButtonApp = express();
 
-happyButtonApp.use(bodyParser.urlencoded({
-    extended: true
-}));
+happyButtonApp.use(
+    bodyParser.urlencoded({
+        extended: true
+    })
+);
 happyButtonApp.use(bodyParser.json());
 
 happyButtonApp.use(logger("dev"));
