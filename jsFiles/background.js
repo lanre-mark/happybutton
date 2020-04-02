@@ -21,8 +21,12 @@ https://stackoverflow.com/questions/4532236/how-to-access-the-webpage-dom-rather
 */
 
 chrome.commands.onCommand.addListener((command) => {
+  // chrome.tabs.executeScript({
+  //   file: 'backend/testData.js'
+  // });
+  console.log('starting chain')
   chrome.tabs.executeScript({
-    file: 'backend/testData.js'
+    file: 'jsFiles/resetDataBase.js'
   });
 
   chrome.tabs.executeScript({
