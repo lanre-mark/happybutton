@@ -4,9 +4,9 @@
   "version": "1",
   "description": "Feeling blue? Try hitting Ctrl+Shift+Y",
   "icons": {
-    "16" : "sourceImages/smileyButton.png",
-    "48" : "sourceImages/smileyButton.png",
-    "128" : "sourceImages/smileyButton.png"
+    "16": "sourceImages/smileyButton.png",
+    "48": "sourceImages/smileyButton.png",
+    "128": "sourceImages/smileyButton.png"
   },
 
   "background": {
@@ -14,21 +14,17 @@
     "persistent": false
   },
 
-  "permissions" : ["activeTab"],
+  "permissions": ["activeTab"],
 
-  "commands" : {
+  "commands": {
     "displayButton": {
       "suggested_key": {
-        "default": "Ctrl+Shift+Y",
-        "mac": "Command+Shift+Y"
+        "default": "Ctrl+Shift+K",
+        "mac": "Command+Shift+K"
       },
       "description": "Reveal Happy Button"
     }
-
   },
 
-  "web_accessible_resources": [
-    "sourceImages/*",
-    "style.css"
-  ]
+  "web_accessible_resources": ["sourceImages/*", "style.css"]
 }
