@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Happy Button",
   "version": "1",
-  "description": "Feeling blue? Try hitting Ctrl+Shift+Y",
+  "description": "Feeling blue? Try hitting Ctrl+Shift+K",
   "icons": {
     "16": "sourceImages/smileyButton.png",
     "48": "sourceImages/smileyButton.png",

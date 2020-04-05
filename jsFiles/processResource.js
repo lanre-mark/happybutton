@@ -1,12 +1,12 @@
-console.log('process File Active');
+// console.log("process File Active");
 
 function processResource(passedResource) {
-  console.log('passedResource: ', passedResource);
+  // console.log('passedResource: ', passedResource);
   let resourceType = passedResource.type;
-  console.log(resourceType);
+  // console.log(resourceType);
 
   //handle sound
-  if(resourceType === 'sound'){
+  if (resourceType === "sound") {
     let soundFile = passedResource.resource;
     let soundUrl = chrome.extension.getURL(soundFile);
     let audio = new Audio(soundUrl);
@@ -14,8 +14,8 @@ function processResource(passedResource) {
   }
 
   // handle image
-  if(resourceType === 'picture'){
-//This return images...but not reliably. Too many random errors
+  if (resourceType === "picture") {
+    //This return images...but not reliably. Too many random errors
     // setTimeout(() => {
     //   const cuteImage = document.createElement('img');
     //   let imageURL = passedResource.resource
@@ -26,38 +26,41 @@ function processResource(passedResource) {
     // }, 500);
 
     //not a popup....but more reliable
-    chrome.runtime.sendMessage({message: passedResource.resource}, (response) => {
-    console.log(response.message);
-    });
+    chrome.runtime.sendMessage(
+      { message: passedResource.resource },
+      (response) => {
+        // console.log(response.message);
+      }
+    );
 
-
-   // setTimeout(removeAllContent,10000);
-  };
+    // setTimeout(removeAllContent,10000);
+  }
 
   // handle website
-  if(resourceType === 'website'){
-    console.log(chrome);
-    chrome.runtime.sendMessage({message: passedResource.resource}, (response) => {
-      console.log(response.message);
-    });
-
-    //setTimeout(removeAllContent,10000);
-  };
+  if (resourceType === "website") {
+    // console.log(chrome);
+    chrome.runtime.sendMessage(
+      { message: passedResource.resource },
+      (response) => {
+        // console.log(response.message);
+      }
+    );
+  }
 
   // handle video
-  if(resourceType === 'video'){
-    console.log(passedResource.resource);
-    chrome.runtime.sendMessage({message: passedResource.resource}, (response) => {
-      console.log(response.message);
-    });
-
-    //setTimeout(removeAllContent,10000);
-  };
-
+  if (resourceType === "video") {
+    // console.log(passedResource.resource);
+    chrome.runtime.sendMessage(
+      { message: passedResource.resource },
+      (response) => {
+        // console.log(response.message);
+        dumpData();
+      }
+    );
   }
+}
 
-  function removeAllContent() {
-    console.log('called Remove');
-    documentTime.removeChild(happyContainer);
-   
-  }
+function removeAllContent() {
+  // console.log('called Remove');
+  documentTime.removeChild(happyContainer);
+}
