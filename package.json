@@ -1,45 +1,45 @@
 {
-    "name": "happybutton",
-    "version": "1.0.0",
-    "description": "Feeling blue? Try hitting Ctrl+Shift+Y",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "prestart": "npm install",
-        "start": "nodemon ./bin/www"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/lanre-mark/happybutton.git"
-    },
-    "keywords": [
-        "happy",
-        "excited",
-        "relaxed",
-        "joy",
-        "laugh",
-        "rejoice"
-    ],
-    "author": "Lanre Mark, Matt Severyn",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/lanre-mark/happybutton/issues"
-    },
-    "homepage": "https://github.com/lanre-mark/happybutton#readme",
-    "dependencies": {
-        "bluebird": "^3.7.2",
-        "body-parser": "^1.19.0",
-        "cookie-parser": "^1.4.5",
-        "debug": "^4.1.1",
-        "dotenv": "^8.2.0",
-        "express": "^4.17.1",
-        "install": "^0.13.0",
-        "jade": "^1.11.0",
-        "morgan": "^1.10.0",
-        "nodemon": "^2.0.2",
-        "object-hash": "^2.0.3",
-        "serve-favicon": "^2.5.0",
-        "superagent": "^5.2.2",
-        "youtube-api-v3-search": "^1.2.1",
-        "youtube-search": "^1.1.4"
-    }
+  "name": "happybutton",
+  "version": "1.0.0",
+  "description": "Feeling blue? Try hitting Ctrl+Shift+Y",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prestart": "npm install",
+    "start": "nodemon ./server/bin/www"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lanre-mark/happybutton.git"
+  },
+  "keywords": [
+    "happy",
+    "excited",
+    "relaxed",
+    "joy",
+    "laugh",
+    "rejoice"
+  ],
+  "author": "Lanre Mark, Matt Severyn",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lanre-mark/happybutton/issues"
+  },
+  "homepage": "https://github.com/lanre-mark/happybutton#readme",
+  "dependencies": {
+    "bluebird": "^3.7.2",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "debug": "^4.1.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "install": "^0.13.0",
+    "jade": "^1.11.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.2",
+    "object-hash": "^2.0.3",
+    "serve-favicon": "^2.5.0",
+    "superagent": "^5.2.2",
+    "youtube-api-v3-search": "^1.2.1",
+    "youtube-search": "^1.1.4"
+  }
 }
